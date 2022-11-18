@@ -7,7 +7,6 @@
 - [Usage](#usage)
 - [Version](#version)
 - [Contact](#contact)
-- [License_and_Tools](#license and Tools)
 ## About
 ### Background
 The REST API will be the very foundation of the entire SparkRentals system for everything to work where the clients such as "User Web Client", "User Mobile app" and "Admin Dashboard" will be able to get the information they need but also be able to update and delete things in the database.
