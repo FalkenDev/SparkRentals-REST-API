@@ -9,7 +9,7 @@ const v1 = require("./v1/index.js");
 const app = express();
 
 app.use(cors());
-app.options('*', cors());
+//app.options('*', cors());
 
 app.disable('x-powered-by');
 
