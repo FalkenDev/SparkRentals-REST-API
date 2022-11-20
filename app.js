@@ -1,34 +1,49 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const morgan = require('morgan');
 const cors = require('cors');
-var cluster = require("cluster");
+var cluster = require("cluster"); // Load Balancer
+
+// Passport for User Auth
+var passport = require('passport');
+var Strategy = require('passport-http-bearer').Strategy;
+
+// Using version 1
 const v1 = require("./v1/index.js");
 
-const app = express();
+// Server port
+const port = process.env.PORT || 8393;
 
-app.use(cors());
-//app.options('*', cors());
+
+// Configure the Bearer strategy for use by Passport.
+//
+// The Bearer strategy requires a `verify` function which receives the
+// credentials (`token`) contained in the request.  The function must invoke
+// `cb` with a user object, which will be set at `req.user` in route handlers
+// after authentication.
+passport.use(new Strategy(
+    function(token, cb) {
+      db.users.findByToken(token, function(err, user) { // Sätt in mongodb databasen där
+        if (err) { return cb(err); }
+        if (!user) { return cb(null, false); }
+        return cb(null, user);
+      });
+    }));
+
+
+const app = express();
 
 app.disable('x-powered-by');
 
 app.set("view engine", "ejs");
 
-const port = process.env.PORT || 8081;
-
-// don't show the log when it is test
-if (process.env.NODE_ENV !== 'test') {
-    // use morgan to log at command line
-    app.use(morgan('combined')); // 'combined' outputs the Apache style LOGs
-}
-
+app.use(cors());
+app.use(require('morgan')('combined'));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/v1", v1); // Using the first version
 
-app.use("/", v1);
 
 if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
@@ -43,7 +58,7 @@ if (cluster.isPrimary) {
     // Listen for dying workers
     cluster.on('exit', function () {
         console.log(`worker ${worker.process.pid} died`);
-        cluster.fork;
+        cluster.fork();
     })
 } else {
     app.listen(port, () => console.log(`Worker ID ${process.pid}, is running on http://localhost:` + port));
