@@ -7,7 +7,6 @@ const authModel = require("./models/auth.js");
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
 
-
 router.get('/', function(req, res){
     authModel.checkAPIKey(req.query.api_key || req.body.api_key, req.path, res);
     console.log("Worker: " + process.pid)
