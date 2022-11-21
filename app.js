@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit')
 var cluster = require("cluster"); // Load Balancer
 
 // Passport for User Auth
@@ -13,6 +14,13 @@ const v1 = require("./v1/index.js");
 
 // Server port
 const port = process.env.PORT || 8393;
+
+const apiLimiter = rateLimit({
+	windowMs: 1 * 60 * 1000, // 1 minutes
+	max: 1000, // Limit each IP to 1000 requests per `window` (here, per 1 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
 
 
 // Configure the Bearer strategy for use by Passport.
@@ -43,7 +51,7 @@ app.use(require('morgan')('combined'));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/v1", v1); // Using the first version
+app.use("/v1", v1, rateLimit); // Using the first version
 
 
 if (cluster.isPrimary) {
