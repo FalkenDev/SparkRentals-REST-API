@@ -23,11 +23,12 @@ const port = process.env.PORT || 8393;
 // after authentication.
 passport.use(new Strategy(
     function(token, cb) {
-      db.users.findByToken(token, function(err, user) { // Sätt in mongodb databasen där
+        let db = client.db("spark-rentals");
+        let collection = db.collection("users");
+        token = collection.find({}).toArray()
         if (err) { return cb(err); }
         if (!user) { return cb(null, false); }
         return cb(null, user);
-      });
     }));
 
 
