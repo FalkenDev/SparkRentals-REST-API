@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require("path");
 const router = express.Router();
+const authModel = require("./models/auth.js");
 
 // MongoDb Database
 const { MongoClient, ObjectId } = require("mongodb");
@@ -8,6 +9,7 @@ const mongoURI = "mongodb://localhost:27017";
 
 
 router.get('/', function(req, res){
+    authModel.checkAPIKey(req.query.api_key || req.body.api_key, req.path, res);
     console.log("Worker: " + process.pid)
     res.sendFile(path.join(__dirname + '/documentation.html'));
 })
