@@ -3,6 +3,7 @@ const hat = require("hat"); // for creating api key
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
 require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
@@ -40,9 +41,9 @@ const auth = {
     },
 
     adminLogin: async function(res, body) { // Admin login
-        const adminEmail = body.email;
-        const adminPassword = body.password;
-        const apiKey = body.apiKey;
+        const adminEmail = sanitize(body.email);
+        const adminPassword = sanitize(body.password);
+        const apiKey = sanitize(body.apiKey);
 
         // If adminEmail or adminPassword is undefined
         if (!adminEmail || !adminPassword) {
