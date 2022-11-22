@@ -7,15 +7,6 @@ const sanitize = require('mongo-sanitize'); // To prevent malicious users overwr
 require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
-/*let api_collection = db.collection("api");
-let user_collection = db.collection("users");
-let admin_collection = db.collection("admin");*/
-
-try {
-    const config = "../../conifg/config.json";
-} catch(error) {
-    console.log(error);
-}
 
 const api_token = process.env.API_TOKEN
 
