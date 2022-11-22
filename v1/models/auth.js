@@ -158,7 +158,7 @@ const auth = {
             if (admin !== null) {
                 return res.status(401).json({
                     errors: {
-                        status: 401,
+                        status: 403,
                         source: "/auth/admin/register",
                         title: "Admin alredy created",
                         detail: "Admin with provided email is alredy created in database."
