@@ -2,36 +2,17 @@ const express = require('express');
 const path = require("path");
 const router = express.Router();
 const authModel = require("./models/auth.js");
+const auth = require("./route/auth.js");
 
 // MongoDb Database
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
 
-router.get('/', function(req, res){
-    authModel.checkAPIKey(req.query.api_key || req.body.api_key, req.path, res);
-    console.log("Worker: " + process.pid)
-    res.sendFile(path.join(__dirname + '/documentation.html'));
-})
+//router.all('*', authModel.checkAPIKey);
 
-/*router.get('/test', async function(req, res){
-    let client = new MongoClient(mongoURI);
-    console.log("Worker: " + process.pid)
+router.get('/', (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
 
-    try {
-        let db = client.db("spark-rentals");
-        let collection = db.collection("test1337");
-        const insertResult = await collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }]);
-        console.log('Inserted documents =>', insertResult);
-        const findResult = await collection.find({}).toArray();
-        console.log('Found documents =>', findResult);
-        res.send(findResult)
-    } catch(error) {
-        console.log(error);
-    } finally {
-        await client.close();
-    }
-})*/
-
+router.use("/auth", auth);
 
 router.use(function (req, res) {
     return res.status(404).json({

@@ -18,14 +18,21 @@
   },
   "homepage": "https://github.com/FalkenDev/SparkRentals-REST-API#readme",
   "dependencies": {
+<<<<<<< HEAD
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
+=======
+>>>>>>> 092b820b84b3ab71495bf955dde81161cd5f29bc
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
     "hat": "^0.0.3",
     "jsonwebtoken": "^8.5.1",
+<<<<<<< HEAD
+=======
+    "mongo-sanitize": "^1.1.0",
+>>>>>>> 092b820b84b3ab71495bf955dde81161cd5f29bc
     "mongodb": "^4.12.0",
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
