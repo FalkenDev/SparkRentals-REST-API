@@ -83,7 +83,7 @@ const auth = {
                 // If everything goes allright it created jwt token and send a response sucess with jwt token
                 if (result) {
                     let payload = { api_key: apiKey, email: admin.email };
-                    let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
+                    let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 });
 
                     return res.json({
                         data: {
