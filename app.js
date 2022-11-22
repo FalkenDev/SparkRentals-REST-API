@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit')
 var cluster = require("cluster"); // Load Balancer
+var filter = require('content-filter') // reliable security for MongoDB applications against the injection attacks
 
 // Using version 1
 const v1 = require("./v1/index.js");
@@ -33,6 +34,8 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(filter());
 
 app.use("/v1", v1); // Using the first version
 
