@@ -127,6 +127,7 @@ const auth = {
         const adminFirstName = sanitize(body.firstName);
         const adminLastName = sanitize(body.lastName);
 
+        // If adminEmail or adminPassword is undefined
         if (!adminEmail || !adminPassword) {
             return res.status(401).json({
                 errors: {
@@ -136,7 +137,7 @@ const auth = {
                     detail: "Email or password missing in request"
                 }
             });
-        } else if (!adminFirstName || !adminLastName) {
+        } else if (!adminFirstName || !adminLastName) { // If adminFirstName or adminLastName is undefined
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -166,9 +167,10 @@ const auth = {
                 });
             }
 
+            // bcrypt the password
             bcrypt.hash(adminPassword, 10, async function(err, hash) {
                 if (err) {
-                    return res.status(500).json({
+                    return res.status(500).json({ // if error with bcrypt
                         errors: {
                             status: 500,
                             source: "/auth/admin/register",
@@ -178,6 +180,7 @@ const auth = {
                     });
                 }
     
+                // create a admin object
                 adminCreate = {
                     firstName: adminFirstName,
                     lastName: adminLastName,
@@ -185,12 +188,14 @@ const auth = {
                     password: hash,
                 }
     
+                // Insert the admin object to the database
                 let clientRegister = new MongoClient(mongoURI);
                 try {
                     let db = clientRegister.db("spark-rentals");
                     let admins_collection = db.collection("admins");
                     await admins_collection.insertOne(adminCreate);
 
+                    // Return sucess
                     return res.status(201).json({
                         data: {
                             message: "User successfully registered."
@@ -202,6 +207,7 @@ const auth = {
                     await clientRegister.close();
                 }
 
+                // if error with database
                 return res.status(500).json({
                     data: {
                         message: "Database error path: /auth/admin/register"
@@ -219,9 +225,9 @@ const auth = {
         let token = req.headers['x-access-token'];
 
         if (token) {
-            jwt.verify(token, jwtSecret, function(err, decoded) {
+            jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
                 if (err) {
-                    return res.status(500).json({
+                    return res.status(500).json({ // If error response with error code 500
                         errors: {
                             status: 500,
                             source: req.path,
@@ -235,12 +241,12 @@ const auth = {
                 req.admin.api_key = decoded.api_key;
                 req.admin.email = decoded.email;
 
-                next();
+                next(); // sucess
 
                 return undefined;
             });
         } else {
-            return res.status(401).json({
+            return res.status(401).json({ // If no token in request headers response with error code 401
                 errors: {
                     status: 401,
                     source: req.path,
