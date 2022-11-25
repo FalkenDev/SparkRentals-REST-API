@@ -1,11 +1,8 @@
-const express = require('express');
-const hat = require("hat"); // for creating api key
-const router = express.Router();
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
-require('dotenv').config();
-const { MongoClient, ObjectId } = require("mongodb");
+const { MongoClient } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
 
 const api_token = process.env.API_TOKEN
@@ -14,21 +11,31 @@ const jwtSecret = process.env.JWT_SECRET;
 
 
 const auth = {
-    checkAPIKey: async function(apiKey, path, res) {  // Check if it's correct API KEY (DONE)
-        try {
-            if (!api_token.includes(apiKey) ) {
-                return res.status(401).json({
-                    errors: {
-                        status: 401,
-                        source: path,
-                        title: "Valid API key",
-                        detail: "No valid API key provided."
-                    }
-                });
-            }
-        } catch (error) {
-            console.log(error);
+    checkAPIKey: async function(req, res, next) {  // Need to go through a check first for those request that don't need an API Key.
+        if ( req.path == '/') { // Documentation
+            return next();
         }
+
+        if ( req.path == '/v1') { // Documentation
+            return next();
+        }
+
+        auth.validAPIKey(req.query.api_key || req.body.api_key, next, req.path, res);
+    },
+
+    validAPIKey: async function(apiKey, next, path, res) {  // Check if it's correct API KEY
+        if (!api_token.includes(apiKey) ) {
+            return res.status(401).json({
+                errors: {
+                    status: 401,
+                    source: path,
+                    title: "Valid API key",
+                    detail: "No valid API key provided."
+                }
+            });
+        }
+        
+        return next();
     },
 
     adminLogin: async function(res, body) { // Admin login
