@@ -5,18 +5,13 @@ const authModel = require("./models/auth.js");
 const routeAuth = require("./route/auth.js");
 const routeAdmins = require("./route/admins.js");
 
-// MongoDb Database
-const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
-
-//router.all('*', authModel.checkAPIKey);
+router.all('*', authModel.checkAPIKey);
 
 router.get('/',
     (req, res, next) => authModel.adminCheckToken(req, res, next),
     (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
 
 router.use("/auth", routeAuth);
-
 router.use("/admins", routeAdmins);
 
 router.use(function (req, res) {
