@@ -20,7 +20,7 @@ const admins = {
             let admins_collection = db.collection("admins");
             let admins = await admins_collection.find().toArray();
 
-            // If nothing in collection
+            // If nothing in db collection
             if (admins === null) {
                 return res.status(401).json({
                     errors: {
@@ -92,7 +92,7 @@ const admins = {
                 let admins_collection = db.collection("admins");
                 let admins = await admins_collection.findOne({_id: ObjectId(adminId)});
 
-                // If nothing in collection
+                // If nothing in db collection
                 if (admins === null) {
                     return res.status(401).json({
                         errors: {
@@ -144,7 +144,7 @@ const admins = {
                 let admins_collection = db.collection("admins");
                 let admin = await admins_collection.findOne({_id: ObjectId(adminId)});
 
-                // If nothing in collection
+                // If nothing in db collection
                 if (admin === null) {
                     return res.status(401).json({
                         errors: {
