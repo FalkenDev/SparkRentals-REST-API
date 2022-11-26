@@ -17,14 +17,14 @@ const admins = {
 
         let admin1 = {
             firstName: "Samuel",
-            lastname: "Freden",
+            lastName: "Freden",
             email: "samuel.freden@gmail.com",
             password: pass1,
         }
 
         let admin2 = {
             firstName: "Zacke",
-            lastname: "Lurgren",
+            lastName: "Lurgren",
             email: "zacke.lurgren@gmail.com",
             password: pass2,
         }

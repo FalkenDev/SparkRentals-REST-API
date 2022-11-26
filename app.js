@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit')
 var cluster = require("cluster"); // Load Balancer
 var filter = require('content-filter') // reliable security for MongoDB applications against the injection attacks
 
@@ -12,7 +11,8 @@ const v1 = require("./v1/index.js");
 // Server port
 const port = process.env.PORT || 8393;
 
-const apiLimiter = rateLimit({
+const RateLimit = require('express-rate-limit');
+const apiLimiter = RateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minutes
 	max: 1000, // Limit each IP to 1000 requests per `window` (here, per 1 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
@@ -20,6 +20,9 @@ const apiLimiter = rateLimit({
 })
 
 const app = express();
+
+// apply rate limiter to all requests
+app.use(apiLimiter);
 
 app.disable('x-powered-by');
 
@@ -40,7 +43,7 @@ app.use(filter());
 app.use("/v1", v1); // Using the first version
 
 // Cluster
-/*if (cluster.isPrimary) {
+if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     var cpuCount = require('os').cpus().length;
     console.log(`Total CPU ${cpuCount}`);
@@ -55,6 +58,6 @@ app.use("/v1", v1); // Using the first version
         console.log(`worker ${worker.process.pid} died`);
         cluster.fork();
     })
-} else {*/
+} else {
     app.listen(port, () => console.log(`Worker ID ${process.pid}, is running on http://localhost:` + port));
-//}
+}
