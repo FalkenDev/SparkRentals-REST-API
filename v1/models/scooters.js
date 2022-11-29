@@ -336,7 +336,7 @@ const scooters = {
     },
 
     // Edit a specific scooters position
-    editPositionScooter: async function(res, body, path) {
+    editCoordinatesScooter: async function(res, body, path) {
         let scooterId = sanitize(body.scooter_id) // ID
         let scooterLongitude = sanitize(body.longitude) // Position longitude
         let scooterLatitude = sanitize(body.latitude) // Position latitude
