@@ -23,6 +23,25 @@ const auth = {
         auth.validAPIKey(req.query.api_key || req.body.api_key, next, req.path, res);
     },
 
+    validTokenKey: async function(req, res, next) {  // Look if token is valid
+        if (req.headers["x-access-token"] !== undefined) {
+
+            auth.adminCheckToken(req, res, next)
+
+        } else if (req.headers.Authorization["Bearer"] !== undefined) {
+
+        }
+
+        return res.status(401).json({
+            errors: {
+                status: 401,
+                source: path,
+                title: "Valid Token key",
+                detail: "No valid Token key provided."
+            }
+        });
+    },
+
     validAPIKey: async function(apiKey, next, path, res) {  // Check if it's correct API KEY
         if (!api_token.includes(apiKey) ) {
             return res.status(401).json({
