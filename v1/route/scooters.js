@@ -29,8 +29,8 @@ router.get('/owner/:owner_id',
 router.put('/status',
     (req, res) => scootersModel.editStatusScooter(res, req.body, req.path));
     
-router.put('/position',
-    (req, res) => scootersModel.editPositionScooter(res, req.body, req.path));
+router.put('/coordinates',
+    (req, res) => scootersModel.editCoordinatesScooter(res, req.body, req.path));
 
 router.post('/rent',
     (req, res) => scootersModel.rentScooter(res, req.body.scooter_id, req.path));
