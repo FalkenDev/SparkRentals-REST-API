@@ -43,7 +43,7 @@ app.use(filter());
 app.use("/v1", v1); // Using the first version
 
 // Cluster
-if (cluster.isPrimary) {
+/*if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
     var cpuCount = require('os').cpus().length;
     console.log(`Total CPU ${cpuCount}`);
@@ -58,6 +58,6 @@ if (cluster.isPrimary) {
         console.log(`worker ${worker.process.pid} died`);
         cluster.fork();
     })
-} else {
+} else {*/
     app.listen(port, () => console.log(`Worker ID ${process.pid}, is running on http://localhost:` + port));
-}
+//}
