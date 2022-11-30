@@ -23,6 +23,7 @@ const scooters = {
                 endTime: null
             },
             battery: 42,
+            speed: 25,
             status: "In use",
             log: {}
         };
@@ -44,6 +45,7 @@ const scooters = {
                 endTime: null
             },
             battery: 100,
+            speed: 30,
             status: "In use",
             log: {}
         };
@@ -57,6 +59,7 @@ const scooters = {
             },
             trip: {},
             battery: 87,
+            speed: 0,
             status: "Available",
             log: {}
         };
@@ -70,6 +73,7 @@ const scooters = {
             },
             trip: {},
             battery: 22,
+            speed: 0,
             status: "Maintenance",
             log: {}
         };
@@ -83,6 +87,7 @@ const scooters = {
             },
             trip: {},
             battery: 100,
+            speed: 0,
             status: "Unavailable",
             log: {}
         };
@@ -96,6 +101,7 @@ const scooters = {
             },
             trip: {},
             battery: 72,
+            speed: 0,
             status: "Available",
             log: {}
         };
@@ -109,6 +115,7 @@ const scooters = {
             },
             trip: {},
             battery: 98,
+            speed: 0,
             status: "Available",
             log: {}
         };
@@ -122,6 +129,7 @@ const scooters = {
             },
             trip: {},
             battery: 4,
+            speed: 0,
             status: "Off",
             log: {}
         };
@@ -135,7 +143,12 @@ const scooters = {
             },
             trip: {
                 userID: "6384c2f8fdda8c74df8084bc",
+                date: "02/04/2020",
                 startPosition: {
+                    longitude: "15.601862",
+                    latitude: "56.176793"
+                },
+                endPosition: {
                     longitude: "15.601862",
                     latitude: "56.176793"
                 },
@@ -143,8 +156,9 @@ const scooters = {
                 endTime: null
             },
             battery: 68,
+            speed: 20,
             status: "In use",
-            log: {}
+            log: []
         };
 
         let halm1 = {
@@ -156,6 +170,7 @@ const scooters = {
             },
             trip: {},
             battery: 42,
+            speed: 0,
             status: "Maintenance",
             log: {}
         };
@@ -169,6 +184,7 @@ const scooters = {
             },
             trip: {},
             battery: 42,
+            speed: 0,
             status: "Available",
             log: {}
         };
@@ -190,6 +206,7 @@ const scooters = {
                 endTime: null
             },
             battery: 42,
+            speed: 24,
             status: "In use",
             log: {}
         };
