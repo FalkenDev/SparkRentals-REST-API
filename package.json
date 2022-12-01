@@ -4,7 +4,8 @@
   "description": "***Unfortunately, the program is not ready and will not be ready for launch until December 13.*** ## Content - [About](#about) - [Download](#download) - [Usage](#usage) - [Version](#version) - [Contact](#contact) ## About ### Background The REST API will be the very foundation of the entire SparkRentals system for everything to work where the clients such as \"User Web Client\", \"User Mobile app\" and \"Admin Dashboard\" will be able to get the information they need but also be able to update and delete things in the database.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "path": "^0.12.7"
   },
   "devDependencies": {
-    "jsdoc": "^4.0.0"
+    "jsdoc": "^4.0.0",
+    "nodemon": "^2.0.20"
   }
 }
