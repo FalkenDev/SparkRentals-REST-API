@@ -5,6 +5,7 @@ const authModel = require("./models/auth.js");
 const routeAuth = require("./route/auth.js");
 const routeAdmins = require("./route/admins.js");
 const routeScooters = require("./route/scooters.js");
+const routeCities = require("./route/cities.js");
 
 router.all('*', authModel.checkAPIKey);
 
@@ -15,6 +16,7 @@ router.get('/',
 router.use("/auth", routeAuth);
 router.use("/admins", routeAdmins);
 router.use("/scooters", routeScooters);
+router.use("/cities", routeCities);
 
 router.use(function (req, res) {
     return res.status(404).json({

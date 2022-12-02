@@ -10,14 +10,14 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Stockholm",
             coordinates: {
-                longitude: "18.121465",
-                latitude: "59.315499"
+                longitude: 18.121465,
+                latitude: 59.315499
             },
             trip: {
                 userID: "6384ce8439f427e20d14ab68",
                 startPosition: {
-                    longitude: "18.121465",
-                    latitude: "59.315499"
+                    longitude: 18.121465,
+                    latitude: 59.315499
                 },
                 startTime: today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(),
                 endTime: null
@@ -32,14 +32,14 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Stockholm",
             coordinates: {
-                longitude: "18.066288",
-                latitude: "59.312761"
+                longitude: 18.066288,
+                latitude: 59.312761
             },
             trip: {
                 userID: "6384c3492eb2414c10ecc71d",
                 startPosition: {
-                    longitude: "18.066288",
-                    latitude: "59.312761"
+                    longitude: 18.066288,
+                    latitude: 59.312761
                 },
                 startTime: today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(),
                 endTime: null
@@ -54,8 +54,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Stockholm",
             coordinates: {
-                longitude: "18.019565",
-                latitude: "59.335181"
+                longitude: 18.019565,
+                latitude: 59.335181
             },
             trip: {},
             battery: 87,
@@ -68,8 +68,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.584684",
-                latitude: "56.159398"
+                longitude: 15.584684,
+                latitude: 56.159398
             },
             trip: {},
             battery: 22,
@@ -82,8 +82,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.583654",
-                latitude: "56.156913"
+                longitude: 15.583654,
+                latitude: 56.156913
             },
             trip: {},
             battery: 100,
@@ -96,8 +96,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.567507",
-                latitude: "56.163796"
+                longitude: 15.567507,
+                latitude: 56.163796
             },
             trip: {},
             battery: 72,
@@ -110,8 +110,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.607015",
-                latitude: "56.181379"
+                longitude: 15.607015,
+                latitude: 56.181379
             },
             trip: {},
             battery: 98,
@@ -124,8 +124,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.619727",
-                latitude: "56.183863"
+                longitude: 15.619727,
+                latitude: 56.183863
             },
             trip: {},
             battery: 4,
@@ -138,19 +138,19 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: "15.601862",
-                latitude: "56.176793"
+                longitude: 15.601862,
+                latitude: 56.176793
             },
             trip: {
                 userID: "6384c2f8fdda8c74df8084bc",
                 date: "02/04/2020",
                 startPosition: {
-                    longitude: "15.601862",
-                    latitude: "56.176793"
+                    longitude: 15.601862,
+                    latitude: 56.176793
                 },
                 endPosition: {
-                    longitude: "15.601862",
-                    latitude: "56.176793"
+                    longitude: 15.601862,
+                    latitude: 56.176793
                 },
                 startTime: today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(),
                 endTime: null
@@ -165,8 +165,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Halmstad",
             coordinates: {
-                longitude: "12.826067",
-                latitude: "56.673852"
+                longitude: 12.826067,
+                latitude: 56.673852
             },
             trip: {},
             battery: 42,
@@ -179,8 +179,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Halmstad",
             coordinates: {
-                longitude: "12.880004",
-                latitude: "56.680265"
+                longitude: 12.880004,
+                latitude: 56.680265
             },
             trip: {},
             battery: 42,
@@ -193,14 +193,14 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Halmstad",
             coordinates: {
-                longitude: "12.920887",
-                latitude: "56.673475"
+                longitude: 12.920887,
+                latitude: 56.673475
             },
             trip: {
                 userID: "6384c2f8fdda8c74df8084bc",
                 startPosition: {
-                    longitude: "12.920887",
-                    latitude: "56.673475"
+                    longitude: 12.920887,
+                    latitude: 56.673475
                 },
                 startTime: today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(),
                 endTime: null
