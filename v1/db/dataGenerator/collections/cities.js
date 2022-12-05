@@ -13,7 +13,8 @@ const cities = {
                 bonusParkingZoneRate: -15,
                 parkingZoneRate: 5,
                 noParkingZoneRate: 100,
-                noParkingToValidParking: -25
+                noParkingToValidParking: -25,
+                chargingZoneRate: -20
             },
             zones: []
         };
@@ -27,7 +28,8 @@ const cities = {
                 bonusParkingZoneRate: -5,
                 parkingZoneRate: 10,
                 noParkingZoneRate: 100,
-                noParkingToValidParking: -25
+                noParkingToValidParking: -25,
+                chargingZoneRate: -20
             }
         };
 
@@ -40,7 +42,8 @@ const cities = {
                 bonusParkingZoneRate: 3,
                 parkingZoneRate: 9,
                 noParkingZoneRate: 100,
-                noParkingToValidParking: -25
+                noParkingToValidParking: -25,
+                chargingZoneRate: -20
             },
             zones: []
         };
@@ -86,7 +89,7 @@ const cities = {
 
         let karlZoneData2 = {
             _id: new ObjectId(),
-            zoneType: "noParkingZone",
+            zoneType: "chargingZone",
             type: "MultiPolygon",
             coordinates : [
                 [15.586683065618786,56.164952347740524],
