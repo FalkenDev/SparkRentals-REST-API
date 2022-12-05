@@ -726,7 +726,7 @@ const scooters = {
                 totalPrice: totalPrice
             }
 
-            let newBalance = user.balance - parseInt(totalPrice);
+            let newBalance = user.balance - parseFloat(totalPrice);
 
             // Push the history data to user history
             await user_collection.updateOne({_id: ObjectId(userId)}, {$push: {history: historyDataField} });
