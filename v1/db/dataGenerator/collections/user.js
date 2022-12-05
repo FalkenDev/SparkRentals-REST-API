@@ -10,7 +10,7 @@ const users = {
             let db = client3.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             let scooter = await scooters_collection.findOne({owner: city})
-            return scooter._id.toString();
+            return [scooter._id.toString(), scooter.name];
         } catch(error) {
             console.log(error);
         } finally {
@@ -39,9 +39,9 @@ const users = {
         let pass2 = await users.createCryptPass("Kalle1337");
         let pass3 = await users.createCryptPass("Zelda1337");
     
-        let scooterId1 = await users.getScooter("Stockholm");
-        let scooterId2 = await users.getScooter("Karlskrona");
-        let scooterId3 = await users.getScooter("Halmstad");
+        let scooterArray1 = await users.getScooter("Stockholm");
+        let scooterArray2 = await users.getScooter("Karlskrona");
+        let scooterArray3 = await users.getScooter("Halmstad");
     
         let user11 = {
             //_id will be added when pushed to db
@@ -78,34 +78,34 @@ const users = {
     
         let history1 = {
             _id: new ObjectId(),
-            scooterID: scooterId1,
+            scooterName: scooterArray1[1],
+            scooterID: scooterArray1[0],
             date: "4/09/2021",
             startPosition: ["50", "62"],
             endPosition: ["30", "12"],
             totalMin: 5,
-            totalKm: 3,
             totalPrice: 20
         }
     
         let history2 = {
             _id: new ObjectId(),
-            scooterID: scooterId2,
+            scooterName: scooterArray2[1],
+            scooterID: scooterArray2[0],
             date: "01/02/2022",
             startPosition: ["780", "32"],
             endPosition: ["60", "32"],
             totalMin: 25,
-            totalKm: 10,
             totalPrice: 145
         }
     
         let history3 = {
             _id: new ObjectId(),
-            scooterID: scooterId3,
+            scooterName: scooterArray3[1],
+            scooterID: scooterArray3[0],
             date: "22/09/2022",
             startPosition: ["220", "552"],
             endPosition: ["440", "622"],
             totalMin: 45,
-            totalKm: 25,
             totalPrice: 225
         }
     

@@ -36,6 +36,7 @@ const cities = {
         const cityParkingZoneRate = sanitize(body.parkingZoneRate);
         const cityNoParkingZoneRate = sanitize(body.noParkingZoneRate);
         const cityNoParkingToValidParking = sanitize(body.noParkingToValidParking);
+        const cityChargingZoneRate = sanitize(body.cityChargingZoneRate);
 
         // Check if something is missing
         if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate || cityNoParkingToValidParking) {
@@ -78,7 +79,8 @@ const cities = {
                 bonusParkingZoneRate: cityBonusParkingZoneRate,
                 parkingZoneRate: cityParkingZoneRate,
                 noParkingZoneRate: cityNoParkingZoneRate,
-                noParkingToValidParking: cityNoParkingToValidParking
+                noParkingToValidParking: cityNoParkingToValidParking,
+                chargingZoneRate: cityChargingZoneRate
             },
             zones: []
         }
@@ -273,7 +275,8 @@ const cities = {
                 bonusParkingZoneRate: "Float",
                 parkingZoneRate: "Float",
                 noParkingZoneRate: "Float",
-                noParkingToValidParking: "Float"
+                noParkingToValidParking: "Float",
+                chargingZoneRate: "Float"
             },
             zones: []
         };
@@ -330,7 +333,8 @@ const cities = {
             bonusParkingZoneRate: "Float",
             parkingZoneRate: "Float",
             noParkingZoneRate: "Float",
-            noParkingToValidParking: "Float"
+            noParkingToValidParking: "Float",
+            chargingZoneRate: "Float",
         }
 
         // Check if the cityId are valid MongoDb id.
@@ -403,6 +407,16 @@ const cities = {
                     source: "POST cities" + path,
                     title: "Attribute missing",
                     detail: "A attribute is missing in body request"
+                }
+            });
+        }
+
+        const zoneList = ["chargingZone", "noParkingZone", "bonusParkingZone", "parkingZone"]
+        if(!zoneList.includes(cityZoneType)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "Required attribute zoneType must contain one of these zones: " + zoneList
                 }
             });
         }
@@ -557,6 +571,17 @@ const cities = {
             // Put in the data the client has requested to update
             for (const field in zoneDataField) {
                 if (body[field] !== undefined) {
+                    if (field === "zoneType") {
+                        const zoneList = ["chargingZone", "noParkingZone", "bonusParkingZone", "parkingZone"]
+                        if(!zoneList.includes(body[field])) {
+                            return res.status(400).json({
+                                errors: {
+                                    status: 400,
+                                    detail: "Required attribute zoneType must contain one of these zones: " + zoneList
+                                }
+                            });
+                        }
+                    }
                     updateFields[field] = sanitize(body[field]);
                 }
             }
