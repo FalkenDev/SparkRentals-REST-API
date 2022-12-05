@@ -46,6 +46,7 @@ const scooters = {
 
     // Register a scooter
     registerScooter: async function(res, body, path) {
+        let nameNumber = 0;
         const scooterOwner = sanitize(body.owner);
         const scooterLongitude = sanitize(body.longitude);
         const scooterLatitude = sanitize(body.latitude);
@@ -75,22 +76,25 @@ const scooters = {
             });
         }
 
-        let registerScooterDataField = {
-            owner: scooterOwner,
-            coordinates: {
-                longitude: scooterLongitude,
-                latitude: scooterLatitude
-            },
-            trip: {},
-            battery: scooterBattery,
-            status: scooterStatus,
-            log: {}
-        }
-
         let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
+            let scooters = await scooters_collection.find().toArray();
+            nameNumber = scooters.length + 1;
+
+            let registerScooterDataField = {
+                name: `Spark-Rentals#${nameNumber.toString()}`,
+                owner: scooterOwner,
+                coordinates: {
+                    longitude: parseFloat(scooterLongitude),
+                    latitude: parseFloat(scooterLatitude)
+                },
+                trip: {},
+                battery: parseInt(scooterBattery),
+                status: scooterStatus,
+                log: {}
+            }
             await scooters_collection.insertOne(registerScooterDataField); // Register the scooter to the database
             res.status(204).send(); // Everything went good
         } catch(e) { return res.status(500).send(); } finally { await client.close(); }
@@ -104,7 +108,7 @@ const scooters = {
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
-            scootersOverview = await scooters_collection.find({}).project({"_id":1, "owner":1, "status":1, "coordinates":1, "battery":1}).toArray();
+            scootersOverview = await scooters_collection.find({}).project({"_id":1, "name":1, "owner":1, "status":1, "coordinates":1, "battery":1}).toArray();
         } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in db collection
@@ -280,8 +284,6 @@ const scooters = {
                 }
             }
 
-            console.log(updateFields);
-
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: updateFields });
 
         } catch(e) { return res.status(500).send(); } finally { await client.close(); }
@@ -436,6 +438,17 @@ const scooters = {
                     }
                 });
             }
+
+            if (user.balance < 50) {
+                return res.status(402).json({
+                    errors: {
+                        status: 401,
+                        source: "POST scooters" + path,
+                        title: "Not enough balance",
+                        detail: "The user does not have enough balance in their account. At least SEK 50 is required. The user balance is: " + user.balance + " SEK."
+                    }
+                });
+            }
         } catch(e) { return res.status(500).send(); } finally { await userClient.close(); }
 
         let client = new MongoClient(mongoURI);
@@ -501,6 +514,8 @@ const scooters = {
         let endInBonusParkinZone = false;
         let startInParkinZone = false;
         let endInParkinZone = false;
+        let startInChargingZone = false;
+        let endInChargingZone = false;
 
         // Count total seconds for the ride
         let startTimeSplit = scooter.trip.startTime.split(':');
@@ -540,6 +555,7 @@ const scooters = {
         let parkingZoneRate = city.taxRates.parkingZoneRate;
         let noParkingZoneRate = city.taxRates.noParkingZoneRate
         let noParkingToValidParking = city.taxRates.noParkingToValidParking;
+        let chargingZoneRate  = city.taxRates.chargingZoneRate;
 
 
         // Add timeRate
@@ -551,6 +567,7 @@ const scooters = {
         let noParkingZones = city.zones.filter(x => x.zoneType.includes("noParkingZone"));
         let parkingZones = city.zones.filter(x => x.zoneType.includes("parkingZone"));
         let bonusParkingZones = city.zones.filter(x => x.zoneType.includes("bonusParkingZone"));
+        let chargingZones = city.zones.filter(x => x.zoneType.includes("chargingZone"));
 
         // Check if user start or end in No Parking zone
         for (noParkingZone in noParkingZones) {
@@ -572,10 +589,20 @@ const scooters = {
             }
         }
 
+        // Check if user start or end in charging zone
+        for (chargingZone in chargingZones) {
+            if(classifyPoint(chargingZones[chargingZone].coordinates, arrayStartPosition) == -1) { // If user started the scooter trip on a charging zone
+                startInChargingZone = true;
+            }
+            if (classifyPoint(chargingZones[chargingZone].coordinates, arrayEndPosition) == -1) { // If user ended the scooter trip on a charging zone
+                endInChargingZone = true;
+            }
+        }
+
         // Check if user start or end in Parking zone)
         for (parkingZone in parkingZones) {
             if(classifyPoint(parkingZones[parkingZone].coordinates, arrayStartPosition) == -1) { // If user started the scooter trip on a parking zone
-            startInParkinZone = true;
+                startInParkinZone = true;
             }
             if (classifyPoint(parkingZones[parkingZone].coordinates, arrayEndPosition) == -1) { // If user ended the scooter trip on a parking zone
                 endInParkinZone = true;
@@ -584,7 +611,9 @@ const scooters = {
         
         // Check if user take a sccoter from a no parkin zone and parks it at at valid zone
         // Reducts the price with noParkingToValidParking rate.
-        if(startInNoParkinZone && endInParkinZone && !endInNoParkinZone || startInNoParkinZone && endInBonusParkinZone && !endInNoParkinZone) {
+        if(startInNoParkinZone && endInParkinZone && !endInNoParkinZone 
+            || startInNoParkinZone && endInBonusParkinZone && !endInNoParkinZone
+            || startInNoParkinZone && endInChargingZone && !endInNoParkinZone) {
             totalPrice += noParkingToValidParking;
         }
         
@@ -593,6 +622,8 @@ const scooters = {
             totalPrice += noParkingZoneRate;
         } else if (endInBonusParkinZone) {
             totalPrice += bonusParkingZoneRate;
+        } else if (endInChargingZone) {
+            totalPrice += chargingZoneRate;
         } else if (endInParkinZone) {
             totalPrice += parkingZoneRate;
         }
@@ -686,6 +717,7 @@ const scooters = {
             // Add all the data to the history field
             let historyDataField = {
                 _id: new ObjectId(),
+                scooterName: scooter.name,
                 scooterId: scooterId,
                 date: scooter.trip.date,
                 startPosition: scooter.trip.startPosition,
@@ -694,8 +726,11 @@ const scooters = {
                 totalPrice: totalPrice
             }
 
+            let newBalance = user.balance - parseInt(totalPrice);
+
             // Push the history data to user history
             await user_collection.updateOne({_id: ObjectId(userId)}, {$push: {history: historyDataField} });
+            await user_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: newBalance} });
         } catch(e) { console.log(e); return res.status(500).send(); } finally { await userClient.close(); }
 
         return res.status(200).send(); // Everything went good
