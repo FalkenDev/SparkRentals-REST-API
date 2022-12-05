@@ -1,33 +1,34 @@
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = "mongodb://localhost:27017";
+var classifyPoint = require("robust-point-in-polygon")
 
 const scooters = {
 
     scooterField: {
-        owner: "City",
+        owner: "string",
         coordinates: {
             longitude: "string",
             latitude: "string"
         },
         trip: {},
-        battery: "Float",
-        status: "string or int?",
+        battery: "float",
+        status: "string",
         log: {}
     },
 
     // Get all scooters information
     getAllScooters: async function(res, path) {
-        let client = new MongoClient(mongoURI);
         let scooters = null;
 
+        let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooters = await scooters_collection.find().toArray();
-        } catch(e) { res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
-        // If nothing in db collection
+        // If nothing in scooters db collection
         if (scooters === null || !scooters.length) {
             return res.status(401).json({
                 errors: {
@@ -51,6 +52,7 @@ const scooters = {
         const scooterBattery = sanitize(body.battery);
         const scooterStatus = sanitize(body.status);
 
+        // Check if missing a required attribute
         if (!scooterOwner || !scooterLongitude || !scooterLatitude || !scooterBattery || !scooterStatus) {
             return res.status(401).json({
                 errors: {
@@ -62,6 +64,7 @@ const scooters = {
             });
         }
 
+        // Spell check on status
         const statusList = ["Available", "In use", "Maintenance", "Unavailable", "Off"]
         if(!statusList.includes(scooterStatus)) {
             return res.status(400).json({
@@ -88,21 +91,21 @@ const scooters = {
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
-            await scooters_collection.insertOne(registerScooterDataField);
-
+            await scooters_collection.insertOne(registerScooterDataField); // Register the scooter to the database
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     // Get all scooters overview
     getAllScootersOverview: async function(res, path) {
-        let client = new MongoClient(mongoURI);
         let scootersOverview = null;
+
+        let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scootersOverview = await scooters_collection.find({}).project({"_id":1, "owner":1, "status":1, "coordinates":1, "battery":1}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in db collection
         if (scootersOverview === null || !scootersOverview.length) {
@@ -122,16 +125,16 @@ const scooters = {
     // Get all scooters from a city
     getAllScootersCity: async function(res, owner_id, path) {
         let ownerId = sanitize(owner_id);
-        console.log(ownerId);
-        let client = new MongoClient(mongoURI);
         let cityScooters = null;
+
+        let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             cityScooters = await scooters_collection.find({owner: ownerId}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
-        // If nothing in db collection
+        // If nothing in scooters db collection
         if (cityScooters === null || !cityScooters.length) {
             return res.status(401).json({
                 errors: {
@@ -143,34 +146,33 @@ const scooters = {
             });
         }
 
-        res.status(200).send({ cityScooters }); // Sends the whole collection data // Kanske skicka en status på denna ?
+        res.status(200).send({ cityScooters }); // Sends the whole collection data
 
     },
 
     // Get a specific scooter
     getSpecificScooter: async function(res, scooter_id, path) {
         let scooterId = sanitize(scooter_id);
-
         let scooter = null;
 
-        if(scooterId.length !== 24) { // Needs to be a string with 24 hex characters.
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(scooterId)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
+                    detail: "The scooter_id is not a valid id."
                 }
             });
         }
-        
 
         let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooter = await scooters_collection.findOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
-        // If nothing in collection
+        // If nothing in scooters db collection
         if (scooter === null || !Object.keys(scooter).length) {
             return res.status(401).json({
                 errors: {
@@ -188,14 +190,14 @@ const scooters = {
     // Delete a specific scooter
     deleteScooter: async function(res, scooter_id, path) {
         let scooterId = sanitize(scooter_id)
-
         let answer = null;
 
-        if(scooterId.length !== 24) { 
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(scooterId)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
+                    detail: "The city_id is not a valid id."
                 }
             });
         }
@@ -205,7 +207,7 @@ const scooters = {
                 let db = client.db("spark-rentals");
                 let scooters_collection = db.collection("scooters");
                 answer = await scooters_collection.deleteOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
         
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
@@ -226,11 +228,12 @@ const scooters = {
         let scooterId = sanitize(body.scooter_id)
         let updateFields = {};
 
-        if (scooterId.length !== 24) {
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(scooterId)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
+                    detail: "The scooter_id is not a valid id."
                 }
             });
         }
@@ -247,7 +250,6 @@ const scooters = {
             }  
         }
         
-
         // Lookup if the scooter exists in database
         let client = new MongoClient(mongoURI);
         try {
@@ -280,9 +282,9 @@ const scooters = {
 
             console.log(updateFields);
 
-            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: updateFields }); // Update the admin information
+            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: updateFields });
 
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -292,20 +294,22 @@ const scooters = {
         let scooterId = sanitize(body.scooter_id) // ID
         let scooterStatus = sanitize(body.status) // Status
 
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(scooterId)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "The scooter_id is not a valid id."
+                }
+            });
+        }
+
         const statusList = ["Available", "In use", "Maintenance", "Unavailable", "Off"]
         if(!statusList.includes(scooterStatus)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
                     detail: "Required attribute status must contain one of these statuses: " + statusList
-                }
-            });
-        }
-        if (scooterId.length !== 24) {
-            return res.status(400).json({
-                errors: {
-                    status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
                 }
             });
         }
@@ -328,9 +332,9 @@ const scooters = {
                 });
             }
 
-            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: scooterStatus} }); // Update the admin information
+            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: scooterStatus} });
 
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -341,19 +345,21 @@ const scooters = {
         let scooterLongitude = sanitize(body.longitude) // Position longitude
         let scooterLatitude = sanitize(body.latitude) // Position latitude
 
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(scooterId)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "The scooter_id is not a valid id."
+                }
+            });
+        }
+
         if(!scooterLongitude || !scooterLatitude) {
             return res.status(400).json({
                 errors: {
                     status: 400,
                     detail: "Required attribute longitude and latitude must contain strings with position"
-                }
-            });
-        }
-        if (scooterId.length !== 24) {
-            return res.status(400).json({
-                errors: {
-                    status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
                 }
             });
         }
@@ -382,82 +388,55 @@ const scooters = {
             };
 
 
-            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {coordinates: coordiantesField} }); // Update the admin information
+            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {coordinates: coordiantesField} });
 
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
 
     // Rent a scooter
-    rentScooter: async function(res, scooter_id, path) {
+    rentScooter: async function(res, scooter_id, user_id, path) {
         let scooterId = sanitize(scooter_id);
+        let userId = sanitize(user_id);
+        let timeToday = new Date();
 
-        if (scooterId.length !== 24) { 
+        // Check if the ids are valid MongoDB ids.
+        if (!ObjectId.isValid(scooterId)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
+                    detail: "The scooter_id is not a valid id."
                 }
             });
-        }
-            let client = new MongoClient(mongoURI);
-            try {
-                let db = client.db("spark-rentals");
-                let scooters_collection = db.collection("scooters");
-                let scooter = await scooters_collection.findOne({_id: ObjectId(scooterId)});
-
-                // If nothing in db collection
-                if (scooter === null) {
-                    return res.status(401).json({
-                        errors: {
-                            status: 401,
-                            source: "POST scooters" + path,
-                            title: "Scooter not exists in database",
-                            detail: "The scooter dosen't exists in database with the specified scooter_id."
-                        }
-                    });
-                }
-
-                // If nothing in db collection
-                if (scooter.status !== "Available") {
-                    return res.status(401).json({
-                        errors: {
-                            status: 401,
-                            source: "POST " + path,
-                            title: "Scooter is not available",
-                            detail: "The specified scooter is not available to rent. The status of the scooter is: " + scooter.status
-                        }
-                    });
-                }
-
-                await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "In use"} }); // Update the admin information
-
-            } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await client.close(); }
-
-            res.status(204).send(); // Everything went good
-    },
-
-    // Stop a scooter
-    stopScooter: async function(res, scooter_id, path) {
-        let scooterId = sanitize(scooter_id);
-
-        let totalPrice = 0;
-        let totalMin = 0;
-        let totalKm = 0;
-        let endPosition = {
-            longitude: "string",
-            latitude: "string"
-        }
-
-        if (scooterId.length !== 24) {
+        } else if (!ObjectId.isValid(userId)) {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "Required attribute scooter_id must be a string of 24 hex characters."
+                    detail: "The user_id is not a valid id."
                 }
             });
-        }
+        };
+
+        // Lookup if user exists with the specified user_id
+        let userClient = new MongoClient(mongoURI);
+        try {
+            let db = userClient.db("spark-rentals");
+            let user_collection = db.collection("users");
+            let user = await user_collection.findOne({_id: ObjectId(userId)});
+
+            // If nothing in db collection
+            if (user === null) {
+                return res.status(401).json({
+                    errors: {
+                        status: 401,
+                        source: "POST scooters" + path,
+                        title: "User not exists in database",
+                        detail: "The user dosen't exists in database with the specified user_id."
+                    }
+                });
+            }
+        } catch(e) { return res.status(500).send(); } finally { await userClient.close(); }
 
         let client = new MongoClient(mongoURI);
         try {
@@ -477,34 +456,249 @@ const scooters = {
                 });
             }
 
-            // If nothing in db collection
-            if (scooter.status !== "In use") {
+            // Check if scooter is not available
+            if (scooter.status !== "Available") {
                 return res.status(401).json({
                     errors: {
                         status: 401,
                         source: "POST " + path,
-                        title: "Scooter is not in use",
-                        detail: "The specified scooter is not in use to stop the rent."
+                        title: "Scooter is not available",
+                        detail: "The specified scooter is not available to rent. The status of the scooter is: " + scooter.status + "."
                     }
                 });
             }
 
-            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "Available"} }); // Update the admin information
-        } catch(e) { return res.status(500).send(); } finally { console.log("Clienten stängs av!"); await editClient.close(); }
+            // Create the trip object with information
+            let trip = {
+                date: timeToday.getFullYear()+'-'+(timeToday.getMonth()+1)+'-'+timeToday.getDate(),
+                userId: userId,
+                startPosition: {
+                    longitude: scooter.coordinates.longitude,
+                    latitude: scooter.coordinates.latitude
+                },
+                startTime: timeToday.getHours() + ":" + timeToday.getMinutes() + ":" + timeToday.getSeconds(),
+                endTime: null
+            }
 
-        // Hämtar owner, startPositon, currentPosition, startTime och kollar vilken tid det är nu.
-        // Hämtar stadens info (zones och taxRates) genom att skicka in scooter owner
+            // Push the trip object to trip object in scooter and status to "In use"
+            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "In use", trip: trip} });
 
-        // Kollar vilken startPosition usern startade biken och lägger till det i rates ( fakutran(totalPrice) ) beroende på vilken zon usern startade i.
-        // Kollar vilken currentPosition ( End pos ) usern slutade biken och lägger till det i rates ( fakutran(totalPrice) ) beroende på vilken zon usern slutade i.
-        // !!! Hur ska jag veta vilken zon usern är i ? !!!
-    
-        // tar current time - start time och gångar det med timeRate och lägger in det i fakturan (totalPrice).
-        // Lägger in fixedRate i fakturan (totalPrice).
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
+        res.status(204).send(); // Everything went good
+    },
+
+    calculateRidePrice: async function(res, scooter, endTime) {
+        let totalPrice = 0;
+        // Scooter start and end position
+        let arrayStartPosition = [scooter.trip.startPosition.longitude, scooter.trip.startPosition.latitude]
+        let arrayEndPosition = [scooter.coordinates.longitude, scooter.coordinates.latitude]
+
+        // If user start or end in a zone
+        let startInNoParkinZone = false;
+        let endInNoParkinZone = false;
+        let startInBonusParkinZone = false;
+        let endInBonusParkinZone = false;
+        let startInParkinZone = false;
+        let endInParkinZone = false;
+
+        // Count total seconds for the ride
+        let startTimeSplit = scooter.trip.startTime.split(':');
+        let endTimeSplit = endTime.split(':');
+        let startTimeSeconds = (+startTimeSplit[0]) * 60 * 60 + (+startTimeSplit[1]) * 60 + (+startTimeSplit[2]); 
+        let endTimeSeconds = (+endTimeSplit[0]) * 60 * 60 + (+endTimeSplit[1]) * 60 + (+endTimeSplit[2]);
+        let totalTimeSeconds = endTimeSeconds - startTimeSeconds;
+
+        // For display
+        let totalMin = Math.round(totalTimeSeconds / 60);
+        let totalSeconds = totalTimeSeconds - totalMin * 60;
+
+        // Get the specific city with the scooter.owner
+        let client = new MongoClient(mongoURI);
+        try {
+            let db = client.db("spark-rentals");
+            let cities_collection = db.collection("cities");
+            city = await cities_collection.findOne({name: scooter.owner});
+        } catch(e) { console.log("CALCULATE TRIP: " + e); return res.status(500).send(); } finally { await client.close(); }
+
+        // If nothing in collection with the specific cityId
+        if (city === null || !Object.keys(city).length) {
+            return res.status(401).json({
+                errors: {
+                    status: 401,
+                    source: "GET scooters" + path,
+                    title: "City not exists in database",
+                    detail: "The City dosen't exists in database with the specified scooter.owner."
+                }
+            });
+        }
+
+        // Get all the rates
+        let fixedRate = city.taxRates.fixedRate;
+        let timeRate = city.taxRates.timeRate;
+        let bonusParkingZoneRate = city.taxRates.bonusParkingZoneRate;
+        let parkingZoneRate = city.taxRates.parkingZoneRate;
+        let noParkingZoneRate = city.taxRates.noParkingZoneRate
+        let noParkingToValidParking = city.taxRates.noParkingToValidParking;
+
+
+        // Add timeRate
+        totalPrice += timeRate * totalMin;
+        // Add fixedRate
+        totalPrice += fixedRate;
+
+        // Get the parkinzones
+        let noParkingZones = city.zones.filter(x => x.zoneType.includes("noParkingZone"));
+        let parkingZones = city.zones.filter(x => x.zoneType.includes("parkingZone"));
+        let bonusParkingZones = city.zones.filter(x => x.zoneType.includes("bonusParkingZone"));
+
+        // Check if user start or end in No Parking zone
+        for (noParkingZone in noParkingZones) {
+            if(classifyPoint(noParkingZones[noParkingZone].coordinates, arrayStartPosition) == -1) { // If user started the scooter trip on a no parking zone
+                startInNoParkinZone = true;
+            }
+            if (classifyPoint(noParkingZones[noParkingZone].coordinates, arrayEndPosition) == -1) { // If user ended the scooter trip on a no parking zone
+                endInNoParkinZone = true;
+            }
+        }
+
+        // Check if user start or end in Bonus Parking zone
+        for (bonusParkingZone in bonusParkingZones) {
+            if(classifyPoint(bonusParkingZones[bonusParkingZone].coordinates, arrayStartPosition) == -1) { // If user started the scooter trip on a bonus parking zone
+                startInBonusParkinZone = true;
+            }
+            if (classifyPoint(bonusParkingZones[bonusParkingZone].coordinates, arrayEndPosition) == -1) { // If user ended the scooter trip on a bonus parking zone
+                endInBonusParkinZone = true;
+            }
+        }
+
+        // Check if user start or end in Parking zone)
+        for (parkingZone in parkingZones) {
+            if(classifyPoint(parkingZones[parkingZone].coordinates, arrayStartPosition) == -1) { // If user started the scooter trip on a parking zone
+            startInParkinZone = true;
+            }
+            if (classifyPoint(parkingZones[parkingZone].coordinates, arrayEndPosition) == -1) { // If user ended the scooter trip on a parking zone
+                endInParkinZone = true;
+            }
+        }
         
-        return res.status(200).send(); // Everything went good
+        // Check if user take a sccoter from a no parkin zone and parks it at at valid zone
+        // Reducts the price with noParkingToValidParking rate.
+        if(startInNoParkinZone && endInParkinZone && !endInNoParkinZone || startInNoParkinZone && endInBonusParkinZone && !endInNoParkinZone) {
+            totalPrice += noParkingToValidParking;
+        }
+        
+        // Check where the user end the trip and reducts / add price rate.
+        if (endInNoParkinZone) {
+            totalPrice += noParkingZoneRate;
+        } else if (endInBonusParkinZone) {
+            totalPrice += bonusParkingZoneRate;
+        } else if (endInParkinZone) {
+            totalPrice += parkingZoneRate;
+        }
 
+        // Return totalPrice with 2 decimals and total min in a array
+        return [totalPrice.toFixed(2), `${totalMin}:${totalSeconds}`];
+    },
+
+    // Stop a scooter
+    stopScooter: async function(res, scooter_id, user_id, path) {
+        let timeToday = new Date();
+        let scooterId = sanitize(scooter_id);
+        let userId = sanitize(user_id);
+        let endTime = timeToday.getHours() + ":" + timeToday.getMinutes() + ":" + timeToday.getSeconds();
+
+        // Check if the ids are valid MongoDB ids.
+        if (!ObjectId.isValid(scooterId)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "The scooter_id is not a valid id."
+                }
+            });
+        } else if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "The user_id is not a valid id."
+                }
+            });
+        };
+
+        // Check if the scooter is valid and then get the data.
+        let client = new MongoClient(mongoURI);
+        try {
+            let db = client.db("spark-rentals");
+            let scooters_collection = db.collection("scooters");
+            var scooter = await scooters_collection.findOne({_id: ObjectId(scooterId)});
+
+            // If scooter not in db collection
+            if (scooter === null) {
+                return res.status(401).json({
+                    errors: {
+                        status: 401,
+                        source: "POST scooters" + path,
+                        title: "Scooter not exists in database",
+                        detail: "The scooter dosen't exists in database with the specified scooter_id."
+                    }
+                });
+            }
+
+            // If scooter is already in use
+            if (scooter.status !== "In use" || scooter.trip.userId !== userId) {
+                return res.status(401).json({
+                    errors: {
+                        status: 401,
+                        source: "POST " + path,
+                        title: "Not rented by user",
+                        detail: "The specified scooter are not rented by user."
+                    }
+                });
+            }
+
+            // Stop the scooter and set the status to Available and trip endtime to the stop time
+            await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "Available", "trip.endTime": endTime} });
+        } catch(e) { console.log("STOP SCOOTER: " + e); return res.status(500).send(); } finally { await client.close(); }
+
+        let userClient = new MongoClient(mongoURI);
+        try {
+            let db = userClient.db("spark-rentals");
+            let user_collection = db.collection("users");
+            var user = await user_collection.findOne({_id: ObjectId(userId)});
+
+            // Check If nothing in db collection
+            if (user === null) {
+                return res.status(401).json({
+                    errors: {
+                        status: 401,
+                        source: "POST scooters" + path,
+                        title: "User not exists in database",
+                        detail: "The User dosen't exists in database with the specified user_id."
+                    }
+                });
+            }
+
+            let arrayCalculate = await scooters.calculateRidePrice(res, scooter, endTime); // Get price and time
+            let totalPrice = arrayCalculate[0];
+            let totalMin = arrayCalculate[1];
+
+
+            // Add all the data to the history field
+            let historyDataField = {
+                _id: new ObjectId(),
+                scooterId: scooterId,
+                date: scooter.trip.date,
+                startPosition: scooter.trip.startPosition,
+                endPosition: scooter.coordinates,
+                totalMin: totalMin,
+                totalPrice: totalPrice
+            }
+
+            // Push the history data to user history
+            await user_collection.updateOne({_id: ObjectId(userId)}, {$push: {history: historyDataField} });
+        } catch(e) { console.log(e); return res.status(500).send(); } finally { await userClient.close(); }
+
+        return res.status(200).send(); // Everything went good
     }
 }
 
