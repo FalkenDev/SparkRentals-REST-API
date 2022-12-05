@@ -10,9 +10,10 @@ const cities = {
             taxRates: {
                 fixedRate: 15,
                 timeRate: 5,
-                bonusParkingZoneRate: 15,
+                bonusParkingZoneRate: -15,
                 parkingZoneRate: 5,
-                noParkingZoneRate: 100
+                noParkingZoneRate: 100,
+                noParkingToValidParking: -25
             },
             zones: []
         };
@@ -23,9 +24,10 @@ const cities = {
             taxRates: {
                 fixedRate: 20,
                 timeRate: 2.5,
-                bonusParkingZoneRate: 5,
+                bonusParkingZoneRate: -5,
                 parkingZoneRate: 10,
-                noParkingZoneRate: 100
+                noParkingZoneRate: 100,
+                noParkingToValidParking: -25
             }
         };
 
@@ -37,7 +39,8 @@ const cities = {
                 timeRate: 2,
                 bonusParkingZoneRate: 3,
                 parkingZoneRate: 9,
-                noParkingZoneRate: 100
+                noParkingZoneRate: 100,
+                noParkingToValidParking: -25
             },
             zones: []
         };

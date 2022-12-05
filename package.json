@@ -33,7 +33,8 @@
     "mongo-sanitize": "^1.1.0",
     "mongodb": "^4.12.0",
     "morgan": "^1.10.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "robust-point-in-polygon": "^1.0.3"
   },
   "devDependencies": {
     "jsdoc": "^4.0.0",

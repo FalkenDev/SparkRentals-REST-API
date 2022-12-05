@@ -33,9 +33,9 @@ router.put('/coordinates',
     (req, res) => scootersModel.editCoordinatesScooter(res, req.body, req.path));
 
 router.post('/rent',
-    (req, res) => scootersModel.rentScooter(res, req.body.scooter_id, req.path));
+    (req, res) => scootersModel.rentScooter(res, req.body.scooter_id, req.body.user_id, req.path));
 
 router.post('/stop',
-    (req, res) => scootersModel.stopScooter(res, req.body, req.path));
+    (req, res) => scootersModel.stopScooter(res, req.body.scooter_id, req.body.user_id, req.path));
 
 module.exports = router;

@@ -35,9 +35,10 @@ const cities = {
         const cityBonusParkingZoneRate = sanitize(body.bonusParkingZoneRate);
         const cityParkingZoneRate = sanitize(body.parkingZoneRate);
         const cityNoParkingZoneRate = sanitize(body.noParkingZoneRate);
+        const cityNoParkingToValidParking = sanitize(body.noParkingToValidParking);
 
         // Check if something is missing
-        if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate) {
+        if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate || cityNoParkingToValidParking) {
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -76,7 +77,8 @@ const cities = {
                 timeRate: cityTimeRate,
                 bonusParkingZoneRate: cityBonusParkingZoneRate,
                 parkingZoneRate: cityParkingZoneRate,
-                noParkingZoneRate: cityNoParkingZoneRate
+                noParkingZoneRate: cityNoParkingZoneRate,
+                noParkingToValidParking: cityNoParkingToValidParking
             },
             zones: []
         }
@@ -270,7 +272,8 @@ const cities = {
                 timeRate: "Float",
                 bonusParkingZoneRate: "Float",
                 parkingZoneRate: "Float",
-                noParkingZoneRate: "Float"
+                noParkingZoneRate: "Float",
+                noParkingToValidParking: "Float"
             },
             zones: []
         };
@@ -326,7 +329,8 @@ const cities = {
             timeRate: "Float",
             bonusParkingZoneRate: "Float",
             parkingZoneRate: "Float",
-            noParkingZoneRate: "Float"
+            noParkingZoneRate: "Float",
+            noParkingToValidParking: "Float"
         }
 
         // Check if the cityId are valid MongoDb id.
