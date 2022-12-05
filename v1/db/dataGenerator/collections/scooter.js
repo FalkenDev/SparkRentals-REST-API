@@ -8,6 +8,7 @@ const scooters = {
     generateScooters: async function() {
         let stock1 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#1",
             owner: "Stockholm",
             coordinates: {
                 longitude: 18.121465,
@@ -30,6 +31,7 @@ const scooters = {
 
         let stock2 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#2",
             owner: "Stockholm",
             coordinates: {
                 longitude: 18.066288,
@@ -52,6 +54,7 @@ const scooters = {
 
         let stock3 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#3",
             owner: "Stockholm",
             coordinates: {
                 longitude: 18.019565,
@@ -66,6 +69,7 @@ const scooters = {
     
         let karl1 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#4",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.584684,
@@ -80,6 +84,7 @@ const scooters = {
     
         let karl2 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#5",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.583654,
@@ -94,6 +99,7 @@ const scooters = {
 
         let karl3 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#6",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.585773,
@@ -108,6 +114,7 @@ const scooters = {
 
         let karl4 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#7",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.607015,
@@ -122,6 +129,7 @@ const scooters = {
 
         let karl5 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#8",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.619727,
@@ -136,6 +144,7 @@ const scooters = {
 
         let karl6 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#9",
             owner: "Karlskrona",
             coordinates: {
                 longitude: 15.601862,
@@ -163,6 +172,7 @@ const scooters = {
 
         let halm1 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#10",
             owner: "Halmstad",
             coordinates: {
                 longitude: 12.826067,
@@ -177,6 +187,7 @@ const scooters = {
 
         let halm2 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#11",
             owner: "Halmstad",
             coordinates: {
                 longitude: 12.880004,
@@ -191,6 +202,7 @@ const scooters = {
 
         let halm3 = {
             //_id will be added when pushed to db
+            name: "Spark-Rentals#12",
             owner: "Halmstad",
             coordinates: {
                 longitude: 12.920887,
