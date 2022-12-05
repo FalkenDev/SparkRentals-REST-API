@@ -96,8 +96,8 @@ const scooters = {
             //_id will be added when pushed to db
             owner: "Karlskrona",
             coordinates: {
-                longitude: 15.567507,
-                latitude: 56.163796
+                longitude: 15.585773,
+                latitude: 56.163827
             },
             trip: {},
             battery: 72,
