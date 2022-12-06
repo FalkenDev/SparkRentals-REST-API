@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
 const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const admins = {
     // Field for editing admins

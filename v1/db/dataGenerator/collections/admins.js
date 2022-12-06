@@ -1,6 +1,6 @@
 // Data generator for admins collection
 const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const admins = {
     createCryptPass: async function(password) {

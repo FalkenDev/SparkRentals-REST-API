@@ -1,6 +1,6 @@
 // Data Generator for cities collection
 const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const cities = {
     generateCities: async function() {

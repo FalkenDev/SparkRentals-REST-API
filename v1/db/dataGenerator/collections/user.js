@@ -1,7 +1,7 @@
 // Data Generator for users collection
 var hat = require('hat');
 const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const users = {
     getScooter: async function(city) {

@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
 const { MongoClient } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const api_token = process.env.API_TOKEN
 

@@ -1,7 +1,7 @@
 // Data Generator for Prepaid collection
 var hat = require('hat');
 const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+const mongoURI = process.env.DBURI;
 
 const prepaids = {
     generatePrepaids: async function() {
