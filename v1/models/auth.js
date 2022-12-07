@@ -1,4 +1,3 @@
-require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
