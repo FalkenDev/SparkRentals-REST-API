@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require('cors');
 var cluster = require("cluster"); // Load Balancer
 var filter = require('content-filter') // reliable security for MongoDB applications against the injection attacks
+require('dotenv').config();
 
 // Using version 1
 const v1 = require("./v1/index.js");
