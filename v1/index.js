@@ -6,17 +6,21 @@ const routeAuth = require("./route/auth.js");
 const routeAdmins = require("./route/admins.js");
 const routeScooters = require("./route/scooters.js");
 const routeCities = require("./route/cities.js");
+const routeUsers = require("./route/users.js");
+const routePrepaids = require("./route/prepaid.js");
 
 router.all('*', authModel.checkAPIKey);
 
 router.get('/',
-    (req, res, next) => authModel.adminCheckToken(req, res, next),
+    (req, res, next) => authModel.userAuthenticated(req, res, next),
     (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
 
 router.use("/auth", routeAuth);
 router.use("/admins", routeAdmins);
 router.use("/scooters", routeScooters);
 router.use("/cities", routeCities);
+router.use("/users", routeUsers);
+router.use("/prepaids", routePrepaids);
 
 router.use(function (req, res) {
     return res.status(404).json({
