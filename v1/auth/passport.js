@@ -3,17 +3,11 @@ const GoogleStrategy = require("passport-google-oauth20");
 const Users = require("../models/users");
 const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = process.env.DBURI;
-const google_callback_url = "http://sparkrentals.software:8393/v1/auth/google/callback"
-
-console.log("-----------------------")
-console.log(process.env.GOOGLE_CLIENT_ID,)
-
-console.log(process.env.GOOGLE_CLIENT_SECRET)
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: google_callback_url,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL,
     passReqToCallback: true
 }, async(req, accessToken, refreshToken, profile, cb) => {
     const defaultUser = {
@@ -23,14 +17,6 @@ passport.use(new GoogleStrategy({
         googleId: profile.id,
     }
 
-    console.log("---------------------")
-    console.log(defaultUser)
-    console.log("--Access-------------")
-    console.log(accessToken)
-    console.log("--refreshToken-------------")
-    console.log(refreshToken)
-    console.log("---------------------")
-
     let user = null
     let client = new MongoClient(mongoURI);
     try {
@@ -39,27 +25,27 @@ passport.use(new GoogleStrategy({
         user = await users_collection.findOne({googleId: profile.id});
         if (user == null || user.length == 0) {
             await users_collection.insertOne(defaultUser);
+            user = await users_collection.findOne({googleId: profile.id});
         }
-        return cb(null, user);
-    } catch(e) { console.log(e); return res.status(500).send(); } finally { await client.close(); }
+    } catch(err) { console.log(err); return cb(err, null); } finally { await client.close(); }
+
+    if (user) return cb(null, user);
 }));
 
 passport.serializeUser((user, cb) => {
-    console.log("-------------Serializing--------------------")
     console.log("Serializing user", user);
     cb(null, user.googleId);
 });
 
 passport.deserializeUser(async (id, cb) => {
-    console.log("-------------DeSerializing--------------------")
     let user = null;
     let client = new MongoClient(mongoURI);
     try {
         let db = client.db("spark-rentals");
         let users_collection = db.collection("users");
         user = await users_collection.findOne({googleId: id});
-    } catch(e) { console.log(e); return res.status(500).send(); } finally { await client.close(); }
-    console.log("DeSerializing user", user);
+    } catch(err) { console.log("ERROR De-Serializing user", err); return cb(err, null); } finally { await client.close(); }
+    console.log("De-Serializing user", user);
 
     if (user) cb(null, user);
 });
