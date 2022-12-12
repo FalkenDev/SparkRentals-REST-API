@@ -36,7 +36,7 @@ const cities = {
         const cityParkingZoneRate = sanitize(body.parkingZoneRate);
         const cityNoParkingZoneRate = sanitize(body.noParkingZoneRate);
         const cityNoParkingToValidParking = sanitize(body.noParkingToValidParking);
-        const cityChargingZoneRate = sanitize(body.cityChargingZoneRate);
+        const cityChargingZoneRate = sanitize(body.chargingZoneRate);
 
         // Check if something is missing
         if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate || cityNoParkingToValidParking) {
