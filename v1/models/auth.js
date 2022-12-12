@@ -31,6 +31,10 @@ const auth = {
             return next();
         }
 
+        if ( req.path == '/auth/login/google/error') { // Documentation
+            return next();
+        }
+
         auth.validAPIKey(req.query.api_key || req.body.api_key, next, req.path, res);
     },
 
