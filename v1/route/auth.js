@@ -3,16 +3,12 @@ const passport = require('passport');
 const router = express.Router();
 const authModel = require("../models/auth.js");
 
-const successLoginUrl = "http://sparkrentals.software:8393/v1";
-const errorLoginUrl = "http://sparkrentals.software:8393/v1/auth/login/google/error";
-
 router.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }))
 
 router.get("/google/callback", passport.authenticate("google", {
         failureMessage: "Cannot login to Google, please try again later!",
-        failureRedirect: errorLoginUrl,
-        successRedirect: successLoginUrl,
-        //successRedirect: successLoginUrl,*/
+        failureRedirect: process.env.GOOGLE_SUCCESS_URL,
+        successRedirect: process.env.GOOGLE_FAILURE_URL,
     })
 );
 
@@ -25,8 +21,14 @@ router.get("/logout/google",
 });
 
 router.get("/login/google/error",
-(req, res, next) => {
-    res.send(401);
+(req, res) => {
+    res.status(401).json({
+        errors: {
+            status: 401,
+            title: "Login error",
+            detail: "ERROR"
+        }
+    });
 });
 
 
