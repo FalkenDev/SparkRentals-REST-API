@@ -34,16 +34,18 @@ passport.use(new GoogleStrategy({
 
 passport.serializeUser((user, cb) => {
     console.log("Serializing user", user);
-    cb(null, user.googleId);
+    console.log("-------------------------------USER ID:",user._id);
+    cb(null, user._id);
 });
 
 passport.deserializeUser(async (id, cb) => {
+    console.log("-------------------------------USER2 ID:",id);
     let user = null;
     let client = new MongoClient(mongoURI);
     try {
         let db = client.db("spark-rentals");
         let users_collection = db.collection("users");
-        user = await users_collection.findOne({googleId: id});
+        user = await users_collection.findOne({_id: ObjectId(id)});
     } catch(err) { console.log("ERROR De-Serializing user", err); return cb(err, null); } finally { await client.close(); }
     console.log("De-Serializing user", user);
 

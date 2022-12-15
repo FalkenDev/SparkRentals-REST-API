@@ -13,7 +13,7 @@ require("./v1/auth/passport");
 const v1 = require("./v1/index.js");
 
 // Server port
-const port = process.env.PORT || 8393;
+const port = process.env.REST_API_PORT || 8393;
 
 const RateLimit = require('express-rate-limit');
 const passport = require('passport');
@@ -75,5 +75,5 @@ app.use("/v1", v1); // Using the first version
         cluster.fork();
     })
 } else {*/
-    app.listen(8393, () => console.log(`Worker ID ${process.pid}, is running on http://localhost:` + port));
+    app.listen(port, () => console.log(`Worker ID ${process.pid}, is running on http://localhost:` + port));
 //}

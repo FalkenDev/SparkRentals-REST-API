@@ -38,19 +38,39 @@ const auth = {
         auth.validAPIKey(req.query.api_key || req.body.api_key, next, req.path, res);
     },
 
-    validTokenKey: async function(req, res, next) {  // Look if token is valid
-        if (req.headers["x-access-token"] !== undefined) {
-
-            auth.adminCheckToken(req, res, next);
-
-        } else if (req.user) {
-            auth.userAuthenticated(req, res, next);
+    checkValidAdmin: async function(req, res, next) {
+        if (req.body.api_key === process.env.REACT_APP_ADMIN_API_KEY || req.query.api_key === process.env.REACT_APP_ADMIN_API_KEY) {
+            return auth.adminCheckToken(req, res, next);
         }
 
         return res.status(401).json({
             errors: {
                 status: 401,
-                source: path,
+                source: req.path,
+                title: "Not a admin",
+                detail: "You don't have access to this area."
+            }
+        });
+    },
+
+    validTokenKey: async function(req, res, next) {  // Look if token is valid
+        if (req.headers["x-access-token"] !== undefined) {
+            if (req.body.api_key == process.env.REACT_APP_ADMIN_API_KEY || req.query.api_key == process.env.REACT_APP_ADMIN_API_KEY) {
+                console.log("----Admin----");
+                return auth.adminCheckToken(req, res, next);
+            } else if (req.body.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY || req.query.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY) {
+                console.log("----User----");
+                return auth.userCheckToken(req, res, next);
+            }
+        } else if (req.user) {
+            console.log("----Google User----");
+            return auth.userAuthenticated(req, res, next);
+        }
+
+        return res.status(401).json({
+            errors: {
+                status: 401,
+                source: req.path,
                 title: "Valid Token key",
                 detail: "No valid Token key provided."
             }
@@ -273,17 +293,15 @@ const auth = {
                 req.admin.api_key = decoded.api_key;
                 req.admin.email = decoded.email;
 
-                next(); // sucess
-
-                return undefined;
+                return next(); // sucess
             });
         } else {
             return res.status(401).json({ // If no token in request headers response with error code 401
                 errors: {
                     status: 401,
                     source: req.path,
-                    title: "No token",
-                    detail: "No token provided in request headers"
+                    title: "No admin token",
+                    detail: "No admin token provided in request headers"
                 }
             });
         }
@@ -291,16 +309,9 @@ const auth = {
     },
 
     userAuthenticated: function(req,res,next) {
-        console.log("userAuthenticated");
-        //console.log(req);
-        //console.log(req.user);
-        console.log('Cookies: ', req.cookies);
-        console.log('Signed Cookies: ', req.signedCookies);
-        console.log(req.isAuthenticated())
-        console.log("------------------");
-        console.log(req.user)
+        console.log("userAuthenticated:", req.isAuthenticated());
         if (req.user || req.isAuthenticated()) {
-            next();
+            return next();
         } else {
             res.status(401).send("You mustlogin first!")
         }
@@ -309,7 +320,7 @@ const auth = {
     userLogin: async function(res, body, path) { // Admin login
         const userEmail = sanitize(body.email);
         const userPassword = sanitize(body.password);
-        const apiKey = sanitize(body.apiKey);
+        const apiKey = sanitize(body.api_key);
 
         // If userEmail or userPassword is undefined
         if (!userEmail || !userPassword) {
@@ -429,7 +440,7 @@ const auth = {
         try {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
-            let user = await users_collection.findOne({email: adminEmail});
+            let user = await users_collection.findOne({email: userEmail});
 
             // If email found in database
             if (user !== null) {
@@ -444,7 +455,7 @@ const auth = {
             }
 
             // bcrypt the password
-            bcrypt.hash(adminPassword, 10, async function(err, hash) {
+            bcrypt.hash(userPassword, 10, async function(err, hash) {
                 if (err) {
                     return res.status(500).json({ // if error with bcrypt
                         errors: {
@@ -503,6 +514,7 @@ const auth = {
 
     userCheckToken: function(req, res, next) { // Check the x-access-token from admin (Not need for user bcs it uses passport)
         let token = req.headers['x-access-token'];
+        console.log(token);
 
         if (token) {
             jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
@@ -521,17 +533,15 @@ const auth = {
                 req.user.api_key = decoded.api_key;
                 req.user.email = decoded.email;
 
-                next(); // sucess
-
-                return undefined;
+                return next();
             });
         } else {
             return res.status(401).json({ // If no token in request headers response with error code 401
                 errors: {
                     status: 401,
                     source: req.path,
-                    title: "No token",
-                    detail: "No token provided in request headers"
+                    title: "No user token",
+                    detail: "No user token provided in request headers"
                 }
             });
         }
