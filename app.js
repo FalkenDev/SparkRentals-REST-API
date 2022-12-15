@@ -1,18 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
+var cookieParser = require('cookie-parser')
+var session = require('express-session')
 var cluster = require("cluster"); // Load Balancer
 var filter = require('content-filter') // reliable security for MongoDB applications against the injection attacks
-require('dotenv').config();
+require("./v1/auth/passport");
 
 // Using version 1
 const v1 = require("./v1/index.js");
 
 // Server port
-const port = process.env.PORT || 8393;
+const port = process.env.REST_API_PORT || 8393;
 
 const RateLimit = require('express-rate-limit');
+const passport = require('passport');
 const apiLimiter = RateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minutes
 	max: 1000, // Limit each IP to 1000 requests per `window` (here, per 1 minutes)
@@ -29,10 +33,21 @@ app.disable('x-powered-by');
 
 app.set("view engine", "ejs");
 
-app.use(cors());
+app.use(cors({credentials: true}));
 app.options('*', cors());
 
+app.use(cookieParser(process.env.COOKIE_KEY))
+
 app.use(require('morgan')('combined'));
+app.use(session({
+    secret: process.env.COOKIE_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+  }));
+  
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
