@@ -67,8 +67,8 @@ const prepaids = {
     },
 
     registerPrepaid: async function(res, body) {
-// Get everything for register a city
-        const prepaidCode = sanitize(body.code);
+    	// Get everything for register a prepaid
+        const prepaidCode = sanitize(body.code); // if undefined then it creates a random code
         const prepaidUses = sanitize(body.uses);
         const prepaidAmount = parseFloat(sanitize(body.amount));
 

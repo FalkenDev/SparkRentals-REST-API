@@ -12,14 +12,14 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             users = await users_collection.find().toArray();
-        } catch(e) { res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (users === null || !users.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET users" + path,
+                    source: "GET /users" + path,
                     title: "Users collection is empty",
                     detail: "Users collection is empty in database."
                 }
@@ -45,23 +45,23 @@ const users = {
 
         let client = new MongoClient(mongoURI);
         try {
-                let db = client.db("spark-rentals");
-                let users_collection = db.collection("users");
-                answer = await users_collection.deleteOne({_id: ObjectId(userId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+            let db = client.db("spark-rentals");
+            let users_collection = db.collection("users");
+            answer = await users_collection.deleteOne({_id: ObjectId(userId)});
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
         
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "DELETE users" + path,
+                    source: "DELETE /users" + path,
                     title: "User not exists in database",
                     detail: "The user dosen't exists in database with the specified user_id."
                 }
             });
-        } else {
-            return res.status(204).send();
         }
+        
+        return res.status(204).send();
     },
 
     editUser: async function(res, body) {
@@ -82,7 +82,7 @@ const users = {
             return res.status(400).json({
                 errors: {
                     status: 400,
-                    detail: "The city_id is not a valid id."
+                    detail: "The user_id is not a valid id."
                 }
             });
         };    
@@ -99,7 +99,7 @@ const users = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT users" + path,
+                        source: "PUT /users" + path,
                         title: "User not exists in database",
                         detail: "The user dosen't exists in database with the specified user_id."
                     }
@@ -134,7 +134,7 @@ const users = {
 
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: updateFields}); // Update the fields in the specific user
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -158,14 +158,14 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             user = await users_collection.findOne({_id: ObjectId(userId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (user === null || !Object.keys(user).length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET users" + path,
+                    source: "GET /users" + path,
                     title: "User not exists in database",
                     detail: "The User dosen't exists in database with the specified scooter_id."
                 }
@@ -198,7 +198,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             userHistory = await users_collection.findOne({_id: ObjectId(userId)}).project({history: 1});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         res.status(200).send({ userHistory }); // Sends data from the specific user
     },
@@ -222,7 +222,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             userDetails = await users_collection.findOne({_id: ObjectId(user_id), "history._id": ObjectId(history_id)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         res.status(200).send({ userDetails }); // Sends data from the specific user
     },
@@ -254,7 +254,7 @@ const users = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "GET users" + path,
+                        source: "GET /users" + path,
                         title: "User not exists in database",
                         detail: "The User dosen't exists in database with the specified scooter_id."
                     }
@@ -272,7 +272,7 @@ const users = {
                     return res.status(401).json({
                         errors: {
                             status: 401,
-                            source: "POST users" + path,
+                            source: "POST /users" + path,
                             title: "User not exists in database",
                             detail: "The User dosen't exists in database with the specified scooter_id."
                         }
@@ -285,7 +285,7 @@ const users = {
                     return res.status(410).json({
                         errors: {
                             status: 401,
-                            source: "POST users" + path,
+                            source: "POST /users" + path,
                             title: "No prepaid card uses left",
                             detail: "The prepaid has not any uses left"
                         }
@@ -293,10 +293,10 @@ const users = {
                 }
 
                 await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.uses - 1}}); // Update the uses in the specific prepaid
-            } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+            } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: user.balance + prepaid.amount}}); // Update the balance in the specific user
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     }
