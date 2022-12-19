@@ -175,10 +175,6 @@ const users = {
         res.status(200).send({ user }); // Sends data from the specific user
     },
 
-    getAllUsersOverview: async function(res) { // Behövs nog inte
-
-    },
-
     getUserHistory: async function(res, user_id) {
         let userId = sanitize(user_id);
         let user = null;
@@ -280,7 +276,7 @@ const users = {
                 }
                 
                 // If prepaid has no more uses left it deletes
-                if (prepaid.uses < 1) {
+                if (prepaid.usesLeft < 1) {
                     answer = await prepaids_collection.deleteOne({code: prepaidCode});
                     return res.status(410).json({
                         errors: {
