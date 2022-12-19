@@ -22,9 +22,12 @@ passport.use(new GoogleStrategy({
     try {
         let db = client.db("spark-rentals");
         let users_collection = db.collection("users");
-        user = await users_collection.findOne({googleId: profile.id});
+        user = await users_collection.findOne({email: profile.emails[0].value});
         if (user == null || user.length == 0) {
             await users_collection.insertOne(defaultUser);
+            user = await users_collection.findOne({googleId: profile.id});
+        } else if (user.googleId == null) {
+            await user_collection.updateOne({email: profile.emails[0].value}, {$set: {googleId: profile.id} });
             user = await users_collection.findOne({googleId: profile.id});
         }
     } catch(err) { console.log(err); return cb(err, null); } finally { await client.close(); }
