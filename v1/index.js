@@ -2,17 +2,25 @@ const express = require('express');
 const path = require("path");
 const router = express.Router();
 const authModel = require("./models/auth.js");
-const auth = require("./route/auth.js");
+const routeAuth = require("./route/auth.js");
+const routeAdmins = require("./route/admins.js");
+const routeScooters = require("./route/scooters.js");
+const routeCities = require("./route/cities.js");
+const routeUsers = require("./route/users.js");
+const routePrepaids = require("./route/prepaid.js");
 
-// MongoDb Database
-const { MongoClient, ObjectId } = require("mongodb");
-const mongoURI = "mongodb://localhost:27017";
+router.all('*', authModel.checkAPIKey);
 
-//router.all('*', authModel.checkAPIKey);
+router.get('/',
+    (req, res, next) => authModel.userAuthenticated(req, res, next),
+    (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
 
-router.get('/', (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
-
-router.use("/auth", auth);
+router.use("/auth", routeAuth);
+router.use("/admins", routeAdmins);
+router.use("/scooters", routeScooters);
+router.use("/cities", routeCities);
+router.use("/users", routeUsers);
+router.use("/prepaids", routePrepaids);
 
 router.use(function (req, res) {
     return res.status(404).json({
