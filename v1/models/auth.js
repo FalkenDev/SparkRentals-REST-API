@@ -3,11 +3,8 @@ const jwt = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize'); // To prevent malicious users overwriting (NoSQL Injection)
 const { MongoClient } = require("mongodb");
 const mongoURI = process.env.DBURI;
-
 const api_token = process.env.API_TOKEN
-
 const jwtSecret = process.env.JWT_SECRET;
-
 
 const auth = {
     checkAPIKey: async function(req, res, next) {  // Need to go through a check first for those request that don't need an API Key.
@@ -92,7 +89,7 @@ const auth = {
         return next();
     },
 
-    adminLogin: async function(res, body) { // Admin login
+    adminLogin: async function(res, body, path) { // Admin login
         const adminEmail = sanitize(body.email);
         const adminPassword = sanitize(body.password);
         const apiKey = sanitize(body.apiKey);
@@ -121,7 +118,7 @@ const auth = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "/auth/admin/login",
+                        source: "POST /auth" + path,
                         title: "Admin not found",
                         detail: "Admin with provided email not found."
                     }
@@ -134,7 +131,7 @@ const auth = {
                     return res.status(500).json({
                         errors: {
                             status: 500,
-                            source: "/auth/admin/login",
+                            source: "POST /auth" + path,
                             title: "bcrypt error",
                             detail: "bcrypt error"
                         }
@@ -142,38 +139,33 @@ const auth = {
                 }
 
                 // If everything goes allright it created jwt token and send a response sucess with jwt token
-                if (result) {
-                    let payload = { api_key: apiKey, email: admin.email };
-                    let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 });
-
-                    return res.json({
-                        data: {
-                            type: "success",
-                            message: "Admin logged in",
-                            user: payload,
-                            token: jwtToken
+                if (!result) {
+                    // If password is not the same as in database
+                    return res.status(401).json({
+                        errors: {
+                            status: 401,
+                            source: "POST /auth" + path,
+                            title: "Wrong password",
+                            detail: "Password is incorrect."
                         }
                     });
                 }
+                let payload = { api_key: apiKey, email: admin.email };
+                let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 });
 
-                // If password is not the same as in database
-                return res.status(401).json({
-                    errors: {
-                        status: 401,
-                        source: "/auth/admin/login",
-                        title: "Wrong password",
-                        detail: "Password is incorrect."
+                return res.json({
+                    data: {
+                        type: "success",
+                        message: "Admin logged in",
+                        user: payload,
+                        token: jwtToken
                     }
                 });
             });
-        } catch(e) {
-            console.log(e);
-        } finally {
-            await client.close();
-        }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
     },
 
-    adminRegister: async function(res, body) { // Register a new Admin
+    adminRegister: async function(res, body, path) { // Register a new Admin
         const adminEmail = sanitize(body.email);
         const adminPassword = sanitize(body.password);
         const adminFirstName = sanitize(body.firstName);
@@ -184,7 +176,7 @@ const auth = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "/auth/admin/register",
+                    source: "POST /auth" + path,
                     title: "Email or password missing",
                     detail: "Email or password missing in request"
                 }
@@ -193,7 +185,7 @@ const auth = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "/auth/admin/register",
+                    source: "POST /auth" + path,
                     title: "First name or last name missing",
                     detail: "First name or last name missing in request"
                 }
@@ -212,7 +204,7 @@ const auth = {
                 return res.status(401).json({
                     errors: {
                         status: 403,
-                        source: "/auth/admin/register",
+                        source: "POST /auth" + path,
                         title: "Admin alredy created",
                         detail: "Admin with provided email is alredy created in database."
                     }
@@ -225,7 +217,7 @@ const auth = {
                     return res.status(500).json({ // if error with bcrypt
                         errors: {
                             status: 500,
-                            source: "/auth/admin/register",
+                            source: "POST /auth" + path,
                             title: "bcrypt error",
                             detail: "bcrypt error"
                         }
@@ -239,63 +231,24 @@ const auth = {
                     email: adminEmail,
                     password: hash,
                 }
-    
+
                 // Insert the admin object to the database
-                let clientRegister = new MongoClient(mongoURI);
-                try {
-                    let db = clientRegister.db("spark-rentals");
-                    let admins_collection = db.collection("admins");
-                    await admins_collection.insertOne(adminCreate);
+                await admins_collection.insertOne(adminCreate);
 
-                    // Return sucess
-                    return res.status(201).json({
-                        data: {
-                            message: "User successfully registered."
-                        }
-                    });
-                } catch(e) {
-                    console.log(e);
-                } finally {
-                    await clientRegister.close();
-                }
-
-                // if error with database
-                return res.status(500).json({
+                // Return sucess
+                return res.status(201).json({
                     data: {
-                        message: "Database error path: /auth/admin/register"
+                        message: "User successfully registered."
                     }
                 });
             });
-        } catch(e) {
-            console.log(e);
-        } finally {
-            await client.close();
-        }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
     },
 
-    adminCheckToken: function(req, res, next) { // Check the x-access-token from admin (Not need for user bcs it uses passport)
+    adminCheckToken: function(req, res, next) { // Check the x-access-token from admin
         let token = req.headers['x-access-token'];
 
-        if (token) {
-            jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
-                if (err) {
-                    return res.status(500).json({ // If error response with error code 500
-                        errors: {
-                            status: 500,
-                            source: req.path,
-                            title: "Failed authentication",
-                            detail: err.message
-                        }
-                    });
-                }
-
-                req.admin = {};
-                req.admin.api_key = decoded.api_key;
-                req.admin.email = decoded.email;
-
-                return next(); // sucess
-            });
-        } else {
+        if (!token) {
             return res.status(401).json({ // If no token in request headers response with error code 401
                 errors: {
                     status: 401,
@@ -305,11 +258,29 @@ const auth = {
                 }
             });
         }
+
+        jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
+            if (err) {
+                return res.status(500).json({ // If error response with error code 500
+                    errors: {
+                        status: 500,
+                        source: req.path,
+                        title: "Failed authentication",
+                        detail: err.message
+                    }
+                });
+            }
+
+            req.admin = {};
+            req.admin.api_key = decoded.api_key;
+            req.admin.email = decoded.email;
+
+            return next(); // sucess
+        });
     
     },
 
     userAuthenticated: function(req,res,next) {
-        console.log("userAuthenticated:", req.isAuthenticated());
         if (req.user || req.isAuthenticated()) {
             return next();
         } else {
@@ -327,7 +298,7 @@ const auth = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "POST auth" + path,
+                    source: "POST /auth" + path,
                     title: "Email or password missing",
                     detail: "Email or password missing in request"
                 }
@@ -366,7 +337,7 @@ const auth = {
                     });
                 }
 
-                // If everything goes allright it created jwt token and send a response sucess with jwt token
+                // If everything goes allright it creates a jwt token and send a response sucess with jwt token
                 if (result) {
                     let payload = { api_key: apiKey, email: user.email };
                     let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 });
@@ -391,11 +362,7 @@ const auth = {
                     }
                 });
             });
-        } catch(e) {
-            console.log(e);
-        } finally {
-            await client.close();
-        }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
     },
 
     userRegister: async function(res, body, path) { // Register a new Admin
@@ -415,7 +382,7 @@ const auth = {
                     detail: "Email or password missing in request"
                 }
             });
-        } else if (!userFirstName || !userLastName) { // If adminFirstName or adminLastName is undefined
+        } else if (!userFirstName || !userLastName) { // If userFirstName or userLastName is undefined
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -478,64 +445,23 @@ const auth = {
                     balance: 0,
                     history: []
                 }
-    
-                // Insert the admin object to the database
-                let clientRegister = new MongoClient(mongoURI);
-                try {
-                    let db = clientRegister.db("spark-rentals");
-                    let users_collection = db.collection("users");
-                    await users_collection.insertOne(userCreate);
 
-                    // Return sucess
-                    return res.status(201).json({
-                        data: {
-                            message: "User successfully registered."
-                        }
-                    });
-                } catch(e) {
-                    console.log(e);
-                } finally {
-                    await clientRegister.close();
-                }
+                await users_collection.insertOne(userCreate);
 
-                // if error with database
-                return res.status(500).json({
+                return res.status(201).json({
                     data: {
-                        message: "Database error path: POST auth" + path,
+                        message: "User successfully registered."
                     }
                 });
             });
-        } catch(e) {
-            console.log(e);
-        } finally {
-            await client.close();
-        }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
     },
 
-    userCheckToken: function(req, res, next) { // Check the x-access-token from admin (Not need for user bcs it uses passport)
+    userCheckToken: function(req, res, next) { // Check the x-access-token from user
         let token = req.headers['x-access-token'];
         console.log(token);
 
-        if (token) {
-            jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
-                if (err) {
-                    return res.status(500).json({ // If error response with error code 500
-                        errors: {
-                            status: 500,
-                            source: req.path,
-                            title: "Failed authentication",
-                            detail: err.message
-                        }
-                    });
-                }
-
-                req.user = {};
-                req.user.api_key = decoded.api_key;
-                req.user.email = decoded.email;
-
-                return next();
-            });
-        } else {
+        if (!token) {
             return res.status(401).json({ // If no token in request headers response with error code 401
                 errors: {
                     status: 401,
@@ -545,6 +471,25 @@ const auth = {
                 }
             });
         }
+
+        jwt.verify(token, jwtSecret, function(err, decoded) { // Verify the token
+            if (err) {
+                return res.status(500).json({ // If error response with error code 500
+                    errors: {
+                        status: 500,
+                        source: req.path,
+                        title: "Failed authentication",
+                        detail: err.message
+                    }
+                });
+            }
+
+            req.user = {};
+            req.user.api_key = decoded.api_key;
+            req.user.email = decoded.email;
+
+            return next();
+        });
     
     },
 }

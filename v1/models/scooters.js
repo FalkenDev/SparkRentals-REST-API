@@ -26,14 +26,14 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooters = await scooters_collection.find().toArray();
-        } catch(e) { res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (scooters === null || !scooters.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "GET /scooters" + path,
                     title: "Scooters collection is empty",
                     detail: "Scooters collection is empty in database."
                 }
@@ -58,7 +58,7 @@ const scooters = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "POST scooters" + path,
+                    source: "POST /scooters" + path,
                     title: "Attribute missing",
                     detail: "A attribute is missing in body request"
                 }
@@ -97,7 +97,7 @@ const scooters = {
             }
             await scooters_collection.insertOne(registerScooterDataField); // Register the scooter to the database
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
     },
 
     // Get all scooters overview
@@ -109,14 +109,14 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scootersOverview = await scooters_collection.find({}).project({"_id":1, "name":1, "owner":1, "status":1, "coordinates":1, "battery":1}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in db collection
         if (scootersOverview === null || !scootersOverview.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "GET /scooters" + path,
                     title: "Scooters collection is empty",
                     detail: "Scooters collection is empty in database."
                 }
@@ -136,14 +136,14 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             cityScooters = await scooters_collection.find({owner: ownerId}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (cityScooters === null || !cityScooters.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "GET /scooters" + path,
                     title: "No scooters at" + ownerId,
                     detail: "No scooters are registered at" + ownerId
                 }
@@ -174,14 +174,14 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooter = await scooters_collection.findOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (scooter === null || !Object.keys(scooter).length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "GET /scooters" + path,
                     title: "Scooter not exists in database",
                     detail: "The scooter dosen't exists in database with the specified scooter_id."
                 }
@@ -211,13 +211,13 @@ const scooters = {
                 let db = client.db("spark-rentals");
                 let scooters_collection = db.collection("scooters");
                 answer = await scooters_collection.deleteOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
         
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "GET /scooters" + path,
                     title: "Scooter not exists in database",
                     detail: "The scooter dosen't exists in database with the specified scooter_id."
                 }
@@ -266,7 +266,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT scooters" + path,
+                        source: "PUT /scooters" + path,
                         title: "Scooter not exists in database",
                         detail: "The scooter dosen't exists in database with the specified scooterID."
                     }
@@ -286,7 +286,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: updateFields });
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -327,7 +327,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT scooters" + path,
+                        source: "PUT /scooters" + path,
                         title: "Scooter not exists in database",
                         detail: "The scooter dosen't exists in database with the specified scooter_id."
                     }
@@ -336,7 +336,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: scooterStatus} });
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -377,7 +377,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT scooters" + path,
+                        source: "PUT /scooters" + path,
                         title: "Scooter not exists in database",
                         detail: "The scooter dosen't exists in database with the specified scooter_id."
                     }
@@ -392,7 +392,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {coordinates: coordiantesField} });
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -432,7 +432,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST scooters" + path,
+                        source: "POST /scooters" + path,
                         title: "User not exists in database",
                         detail: "The user dosen't exists in database with the specified user_id."
                     }
@@ -443,13 +443,13 @@ const scooters = {
                 return res.status(402).json({
                     errors: {
                         status: 401,
-                        source: "POST scooters" + path,
+                        source: "POST /scooters" + path,
                         title: "Not enough balance",
                         detail: "The user does not have enough balance in their account. At least SEK 50 is required. The user balance is: " + user.balance + " SEK."
                     }
                 });
             }
-        } catch(e) { return res.status(500).send(); } finally { await userClient.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await userClient.close(); }
 
         let client = new MongoClient(mongoURI);
         try {
@@ -462,7 +462,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST scooters" + path,
+                        source: "POST /scooters" + path,
                         title: "Scooter not exists in database",
                         detail: "The scooter dosen't exists in database with the specified scooter_id."
                     }
@@ -474,7 +474,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST " + path,
+                        source: "POST /scooters" + path,
                         title: "Scooter is not available",
                         detail: "The specified scooter is not available to rent. The status of the scooter is: " + scooter.status + "."
                     }
@@ -496,7 +496,7 @@ const scooters = {
             // Push the trip object to trip object in scooter and status to "In use"
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "In use", trip: trip} });
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         res.status(204).send(); // Everything went good
     },
@@ -534,14 +534,14 @@ const scooters = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             city = await cities_collection.findOne({name: scooter.owner});
-        } catch(e) { console.log("CALCULATE TRIP: " + e); return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in collection with the specific cityId
         if (city === null || !Object.keys(city).length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET scooters" + path,
+                    source: "POST /scooters" + path,
                     title: "City not exists in database",
                     detail: "The City dosen't exists in database with the specified scooter.owner."
                 }
@@ -668,7 +668,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST scooters" + path,
+                        source: "POST /scooters" + path,
                         title: "Scooter not exists in database",
                         detail: "The scooter dosen't exists in database with the specified scooter_id."
                     }
@@ -680,7 +680,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST " + path,
+                        source: "POST /scooters" + path,
                         title: "Not rented by user",
                         detail: "The specified scooter are not rented by user."
                     }
@@ -689,7 +689,7 @@ const scooters = {
 
             // Stop the scooter and set the status to Available and trip endtime to the stop time
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "Available", "trip.endTime": endTime} });
-        } catch(e) { console.log("STOP SCOOTER: " + e); return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         let userClient = new MongoClient(mongoURI);
         try {
@@ -702,7 +702,7 @@ const scooters = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST scooters" + path,
+                        source: "POST /scooters" + path,
                         title: "User not exists in database",
                         detail: "The User dosen't exists in database with the specified user_id."
                     }
@@ -731,7 +731,7 @@ const scooters = {
             // Push the history data to user history
             await user_collection.updateOne({_id: ObjectId(userId)}, {$push: {history: historyDataField} });
             await user_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: newBalance} });
-        } catch(e) { console.log(e); return res.status(500).send(); } finally { await userClient.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await userClient.close(); }
 
         return res.status(200).send(); // Everything went good
     }

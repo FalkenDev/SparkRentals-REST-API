@@ -13,11 +13,11 @@ router.get("/google/callback", passport.authenticate("google", {
 );
 
 router.post("/login/server/admin",
-    (req, res) => authModel.adminLogin(res, req.body)
+    (req, res) => authModel.adminLogin(res, req.body, req.path)
 );
 
 router.post("/login/server/user",
-    (req, res) => authModel.userLogin(res, req.body)
+    (req, res) => authModel.userLogin(res, req.body, req.path)
 );
 
 router.get("/login/google/error",
@@ -53,7 +53,7 @@ router.get("/logout/google",
       });
 });
 
-router.get("/user",
+router.get("/google/user",
     (req, res, next) => authModel.validTokenKey(req, res, next),
     (req, res) => res.json(req.user)
 );

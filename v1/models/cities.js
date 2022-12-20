@@ -11,14 +11,14 @@ const cities = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             cities = await cities_collection.find().toArray();
-        } catch(e) { res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in db collection
         if (cities === null || !cities.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET cities" + path,
+                    source: "GET /cities" + path,
                     title: "Cities collection is empty",
                     detail: "Cities collection is empty in database."
                 }
@@ -43,7 +43,7 @@ const cities = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "POST cities" + path,
+                    source: "POST /cities" + path,
                     title: "Attribute missing",
                     detail: "A attribute is missing in body request"
                 }
@@ -62,38 +62,32 @@ const cities = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "POST cities" + path,
+                        source: "POST /cities" + path,
                         title: "City Alredy exists",
                         detail: "The city " + cityName + " alredy exists in database."
                     }
                 });
             }
-        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
-        // Create city data field
-        let cityDataField = {
-            name: cityName,
-            taxRates: {
-                fixedRate: cityFixedRate,
-                timeRate: cityTimeRate,
-                bonusParkingZoneRate: cityBonusParkingZoneRate,
-                parkingZoneRate: cityParkingZoneRate,
-                noParkingZoneRate: cityNoParkingZoneRate,
-                noParkingToValidParking: cityNoParkingToValidParking,
-                chargingZoneRate: cityChargingZoneRate
-            },
-            zones: []
-        }
+            // Create city data field
+            let cityDataField = {
+                name: cityName,
+                taxRates: {
+                    fixedRate: cityFixedRate,
+                    timeRate: cityTimeRate,
+                    bonusParkingZoneRate: cityBonusParkingZoneRate,
+                    parkingZoneRate: cityParkingZoneRate,
+                    noParkingZoneRate: cityNoParkingZoneRate,
+                    noParkingToValidParking: cityNoParkingToValidParking,
+                    chargingZoneRate: cityChargingZoneRate
+                },
+                zones: []
+            }
 
-        // Insert the registered data
-        let registerClient = new MongoClient(mongoURI);
-        try {
-            let db = registerClient.db("spark-rentals");
-            let cities_collection = db.collection("cities");
             await cities_collection.insertOne(cityDataField);
-
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(); } finally { await registerClient.close(); }
+
+        } catch(e) { return res.status(500).send(e); } finally { await registerClient.close(); }
     },
 
     getAllCitiesOverview: async function(res, path) {
@@ -107,14 +101,14 @@ const cities = {
             let db = citiesClient.db("spark-rentals");
             let cities_collection = db.collection("cities");
             citiesOverview = await cities_collection.find({}).project({"_id":1, "name":1, "zones":1}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { await citiesClient.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await citiesClient.close(); }
 
         // If nothing in db collection
         if (citiesOverview === null || !citiesOverview.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET cities" + path,
+                    source: "GET /cities" + path,
                     title: "Cities collection is empty",
                     detail: "Cities collection is empty in database."
                 }
@@ -127,14 +121,14 @@ const cities = {
             let db = scooterClient.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scootersOverview = await scooters_collection.find({}).project({"_id":1, "owner":1, "status":1}).toArray();
-        } catch(e) { return res.status(500).send(); } finally { await scooterClient.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await scooterClient.close(); }
 
         // If nothing in db collection
         if (scootersOverview === null || !scootersOverview.length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET cities" + path,
+                    source: "GET /cities" + path,
                     title: "Scooter collection is empty",
                     detail: "Scooter collection is empty in database."
                 }
@@ -210,14 +204,14 @@ const cities = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             city = await cities_collection.findOne({_id: ObjectId(cityId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // If nothing in collection with the specific cityId
         if (city === null || !Object.keys(city).length) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "GET cities" + path,
+                    source: "GET /cities" + path,
                     title: "City not exists in database",
                     detail: "The City dosen't exists in database with the specified city_id."
                 }
@@ -247,14 +241,14 @@ const cities = {
                 let db = client.db("spark-rentals");
                 let cities_collection = db.collection("cities");
                 answer = await cities_collection.deleteOne({_id: ObjectId(cityId)});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // Check if nothing has been deleted in MongoDB = the city_id dosen't exists
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "DELETE cities" + path,
+                    source: "DELETE /cities" + path,
                     title: "City not exists in database",
                     detail: "The City dosen't exists in database with the specified city_id."
                 }
@@ -291,7 +285,7 @@ const cities = {
             });
         };    
 
-        // Lookup if the scooter exists in database
+        // Lookup if the city exists in database
         let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
@@ -303,7 +297,7 @@ const cities = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT cities" + path,
+                        source: "PUT /cities" + path,
                         title: "City not exists in database",
                         detail: "The City dosen't exists in database with the specified scooterID."
                     }
@@ -319,7 +313,7 @@ const cities = {
 
             await cities_collection.updateOne({_id: ObjectId(cityId)}, {$set: updateFields}); // Update the fields in the specific city
 
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -347,19 +341,19 @@ const cities = {
             });
         }
 
-        // Lookup if the scooter exists in database
+        // Lookup if the city exists in database
         let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             let city = await cities_collection.findOne({_id: ObjectId(cityId)});
 
-            // If scooter dosen't exists in db collection
+            // Check if city dosen't exists in db collection
             if (city === null) {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT cities" + path,
+                        source: "PUT vcities" + path,
                         title: "City not exists in database",
                         detail: "The City dosen't exists in database with the specified city_id."
                     }
@@ -378,7 +372,7 @@ const cities = {
 
             await cities_collection.updateMany({_id: ObjectId(cityId)}, {$set: {taxRates: updateFields}}); // Update the admin information
 
-        } catch(e) { console.log(e); return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { console.log(e); return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -404,7 +398,7 @@ const cities = {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "POST cities" + path,
+                    source: "POST /cities" + path,
                     title: "Attribute missing",
                     detail: "A attribute is missing in body request"
                 }
@@ -433,13 +427,13 @@ const cities = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT cities" + path,
+                        source: "PUT /cities" + path,
                         title: "City not exists in database",
                         detail: "The City dosen't exists in database with the specified city_id."
                     }
                 });
             }
-        } catch(e) { res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
 
         // Insert the data to a zone object
         let zoneDataField = {
@@ -457,7 +451,7 @@ const cities = {
             await cities_collection.updateOne({_id: ObjectId(cityId)}, {$push: {zones: zoneDataField} });
 
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(); } finally { await registerClient.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await registerClient.close(); }
     },
 
     deleteZone: async function(res, body, path) {
@@ -488,14 +482,14 @@ const cities = {
                 let db = client.db("spark-rentals");
                 let cities_collection = db.collection("cities");
                 answer = await cities_collection.updateOne({_id: ObjectId(cityId)}, {$pull: {zones: {_id: ObjectId(zoneId)}}});
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
         // Check if nothing has been deleted in MongoDB = the zone_id dosen't exists
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
                 errors: {
                     status: 401,
-                    source: "DELETE cities" + path,
+                    source: "DELETE /cities" + path,
                     title: "Zone not exists in database",
                     detail: "The Zone dosen't exists in database with the specified city_id and zone_id."
                 }
@@ -546,7 +540,7 @@ const cities = {
                 return res.status(401).json({
                     errors: {
                         status: 401,
-                        source: "PUT cities" + path,
+                        source: "PUT /cities" + path,
                         title: "City not exists in database",
                         detail: "The City dosen't exists in database with the specified city_id."
                     }
@@ -592,7 +586,7 @@ const cities = {
             // Update the zone
             await cities_collection.updateOne({_id: ObjectId(cityId), "zones._id": ObjectId(zoneId)}, {$set: {"zones.$":  updateFields}});
 
-        } catch(e) { console.log(e); return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { console.log(e); return res.status(500).send(e); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     }
