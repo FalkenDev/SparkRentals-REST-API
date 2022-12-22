@@ -287,15 +287,8 @@ const users = {
                         }
                     });
                 }
-<<<<<<< HEAD
                 await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.usesLeft - 1}}); // Update the uses in the specific prepaid
             } catch(e) { return res.status(500).send(); } finally { await client.close(); }
-=======
-
-                await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.uses - 1}}); // Update the uses in the specific prepaid
-            } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
->>>>>>> 96de1ac8c25ad51da9293138db8804288217ab7e
-
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: user.balance + prepaid.amount}}); // Update the balance in the specific user
         } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
