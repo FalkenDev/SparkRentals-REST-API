@@ -175,10 +175,6 @@ const users = {
         res.status(200).send({ user }); // Sends data from the specific user
     },
 
-    getAllUsersOverview: async function(res) { // Behövs nog inte
-
-    },
-
     getUserHistory: async function(res, user_id) {
         let userId = sanitize(user_id);
         let user = null;
@@ -280,7 +276,7 @@ const users = {
                 }
                 
                 // If prepaid has no more uses left it deletes
-                if (prepaid.uses < 1) {
+                if (prepaid.usesLeft < 1) {
                     answer = await prepaids_collection.deleteOne({code: prepaidCode});
                     return res.status(410).json({
                         errors: {
@@ -291,9 +287,8 @@ const users = {
                         }
                     });
                 }
-
-                await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.uses - 1}}); // Update the uses in the specific prepaid
-            } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+                await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.usesLeft - 1}}); // Update the uses in the specific prepaid
+            } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: user.balance + prepaid.amount}}); // Update the balance in the specific user
         } catch(e) { return res.status(500).send(e); } finally { await client.close(); }

@@ -67,13 +67,13 @@ const prepaids = {
     },
 
     registerPrepaid: async function(res, body) {
-    	// Get everything for register a prepaid
-        const prepaidCode = sanitize(body.code); // if undefined then it creates a random code
-        const prepaidUses = sanitize(body.uses);
+        const totalUses = sanitize(body.total_uses)
+        const prepaidCode = sanitize(body.code);
+        const prepaidUses = sanitize(body.uses_left);
         const prepaidAmount = parseFloat(sanitize(body.amount));
 
         // Check if something is missing
-        if (!uses || !amount) {
+        if (!prepaidUses || !prepaidAmount || ! totalUses) {
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -88,11 +88,12 @@ const prepaids = {
             prepaidCode = hat()
         }
 
-        // Create city data field
+        // Create prepaid data field
         let prepaidDataField = {
             code: prepaidCode,
+            totalUses: totalUses,
             users: [],
-            uses: prepaidUses,
+            usesLeft: prepaidUses,
             amount: prepaidAmount
         }
 
@@ -149,8 +150,9 @@ const prepaids = {
         let updateFields = {};
         let prepaidDataField = {
             code: "String",
+            totalUses: "Int",
             users: "Array",
-            uses: "Int",
+            usesLeft: "Int",
             amount: "Float"
         };
 
