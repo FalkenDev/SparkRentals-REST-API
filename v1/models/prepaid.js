@@ -69,11 +69,10 @@ const prepaids = {
     registerPrepaid: async function(res, body) {
         const totalUses = sanitize(body.total_uses)
         const prepaidCode = sanitize(body.code);
-        const prepaidUses = sanitize(body.uses_left);
         const prepaidAmount = parseFloat(sanitize(body.amount));
 
         // Check if something is missing
-        if (!prepaidUses || !prepaidAmount || ! totalUses) {
+        if (!prepaidAmount || ! totalUses) {
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -93,7 +92,7 @@ const prepaids = {
             code: prepaidCode,
             totalUses: totalUses,
             users: [],
-            usesLeft: prepaidUses,
+            usesLeft: totalUses,
             amount: prepaidAmount
         }
 
