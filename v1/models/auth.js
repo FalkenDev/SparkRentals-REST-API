@@ -339,7 +339,7 @@ const auth = {
 
                 // If everything goes allright it creates a jwt token and send a response sucess with jwt token
                 if (result) {
-                    let payload = { api_key: apiKey, email: user.email };
+                    let payload = {id: user._id, email: user.email };
                     let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 });
 
                     return res.json({
@@ -446,10 +446,18 @@ const auth = {
                     history: []
                 }
 
-                await users_collection.insertOne(userCreate);
+                let findUser = null;
+                let registerClient = new MongoClient(mongoURI);
+                try {
+                    let db = registerClient.db("spark-rentals");
+                    let users_collection = db.collection("users");
+                    await users_collection.insertOne(userCreate);
+                    findUser = await users_collection.findOne({email: userEmail});
+                } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
                 return res.status(201).json({
                     data: {
+                        userId: findUser._id,
                         message: "User successfully registered."
                     }
                 });
