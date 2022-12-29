@@ -14,15 +14,15 @@ router.get('/',
     (req, res) => citiesModel.getAllCitiesInformation(res, req.path));
 
 router.post('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.registerCity(res, req.body, req.path));
     
 router.delete('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.deleteCity(res, req.body.city_id, req.path));
 
 router.put('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.editCity(res, req.body, req.path));
 
 router.get('/:city_id',
@@ -34,15 +34,15 @@ router.put('/tax',
     (req, res) => citiesModel.editTaxRateFromCity(res, req.body, req.path));
 
 router.post('/zones',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.registerZone(res, req.body, req.path));
 
 router.delete('/zones',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.deleteZone(res, req.body, req.path));
 
 router.put('/zones',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => citiesModel.editZone(res, req.body, req.path));
 
 module.exports = router;
