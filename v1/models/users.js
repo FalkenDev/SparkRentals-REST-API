@@ -4,7 +4,7 @@ const { MongoClient, ObjectId } = require("mongodb");
 const mongoURI = process.env.DBURI;
 
 const users = {
-    getAllUsers: async function(res) {
+    getAllUsers: async function(res, path) {
         let users = null;
 
         let client = new MongoClient(mongoURI);
@@ -29,7 +29,7 @@ const users = {
         res.status(200).send({ users }); // Sends the whole collection data
     },
 
-    deleteUser: async function(res, user_id) {
+    deleteUser: async function(res, user_id, path) {
         let userId = sanitize(user_id)
         let answer = null;
 
@@ -64,7 +64,7 @@ const users = {
         return res.status(204).send();
     },
 
-    editUser: async function(res, body) {
+    editUser: async function(res, body, path) {
         let userId = sanitize(body.user_id);
         let updateFields = {};
         let userDataField = {
@@ -115,7 +115,7 @@ const users = {
                                 return res.status(500).json({ // if error with bcrypt
                                     errors: {
                                         status: 500,
-                                        source: "PUT /admin",
+                                        source: "PUT /users",
                                         title: "bcrypt error",
                                         detail: "bcrypt error"
                                     }
@@ -139,7 +139,7 @@ const users = {
         return res.status(204).send(); // Everything went good
     },
 
-    getSpecificUser: async function(res, user_id) {
+    getSpecificUser: async function(res, user_id, path) {
         let userId = sanitize(user_id);
         let user = null;
 
@@ -167,7 +167,7 @@ const users = {
                     status: 401,
                     source: "GET /users" + path,
                     title: "User not exists in database",
-                    detail: "The User dosen't exists in database with the specified scooter_id."
+                    detail: "The User dosen't exists in database with the specified user_id."
                 }
             });
         }
@@ -175,9 +175,9 @@ const users = {
         res.status(200).send({ user }); // Sends data from the specific user
     },
 
-    getUserHistory: async function(res, user_id) {
+    getUserHistory: async function(res, user_id, path) {
         let userId = sanitize(user_id);
-        let user = null;
+        let userHistory = null;
 
         // Check if the scooterId are valid MongoDB id.
         if (!ObjectId.isValid(userId)) {
@@ -196,12 +196,24 @@ const users = {
             userHistory = await users_collection.findOne({_id: ObjectId(userId)}).project({history: 1});
         } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
+        // If nothing in users db collection
+        if (userHistory === null) {
+            return res.status(401).json({
+                errors: {
+                    status: 401,
+                    source: "GET /users" + path,
+                    title: "User history not exists in database",
+                    detail: "The User history dosen't exists in database with the specified user_id."
+                }
+            });
+        }
+
         res.status(200).send({ userHistory }); // Sends data from the specific user
     },
 
-    getUserDetails: async function(res, user_id, history_id) {
+    getUserDetails: async function(res, user_id, history_id, path) {
         let userId = sanitize(user_id);
-        let user = null;
+        let userDetails = null;
 
         // Check if the userId are valid MongoDB id.
         if (!ObjectId.isValid(userId)) {
@@ -220,10 +232,22 @@ const users = {
             userDetails = await users_collection.findOne({_id: ObjectId(user_id), "history._id": ObjectId(history_id)});
         } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
+        // If nothing in users db collection
+        if (userDetails === null) {
+            return res.status(401).json({
+                errors: {
+                    status: 401,
+                    source: "GET /users" + path,
+                    title: "User history details not exists in database",
+                    detail: "The User history details dosen't exists in database with the specified user_id."
+                }
+            });
+        }
+
         res.status(200).send({ userDetails }); // Sends data from the specific user
     },
 
-    addUserFunds: async function(req, body) {
+    addUserFunds: async function(res, body, path) {
         let user = null;
         let prepaid = null;
         let userId = sanitize(body.user_id);
@@ -252,7 +276,7 @@ const users = {
                         status: 401,
                         source: "GET /users" + path,
                         title: "User not exists in database",
-                        detail: "The User dosen't exists in database with the specified scooter_id."
+                        detail: "The User dosen't exists in database with the specified user_id."
                     }
                 });
             }
@@ -270,7 +294,7 @@ const users = {
                             status: 401,
                             source: "POST /users" + path,
                             title: "User not exists in database",
-                            detail: "The User dosen't exists in database with the specified scooter_id."
+                            detail: "The User dosen't exists in database with the specified user_id."
                         }
                     });
                 }

@@ -14,15 +14,15 @@ router.get('/',
     (req, res) => scootersModel.getAllScooters(res, req.path));
 
 router.post('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => scootersModel.registerScooter(res, req.body, req.path));
     
 router.delete('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => scootersModel.deleteScooter(res, req.body.scooter_id, req.path));
 
 router.put('/',
-    (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res, next) => authModel.checkValidAdmin(req, res, next),
     (req, res) => scootersModel.editScooter(res, req.body, req.path));
 
 router.get('/:scooter_id',
