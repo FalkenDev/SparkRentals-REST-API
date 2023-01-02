@@ -270,7 +270,7 @@ const users = {
             user = await users_collection.findOne({_id: ObjectId(userId)});
 
             // If nothing in users db collection
-            if (user === null || !Object.keys(user).length) {
+            if (user === null) {
                 return res.status(401).json({
                     errors: {
                         status: 401,
@@ -293,8 +293,8 @@ const users = {
                         errors: {
                             status: 401,
                             source: "POST /users" + path,
-                            title: "User not exists in database",
-                            detail: "The User dosen't exists in database with the specified user_id."
+                            title: "Prepaid not exists in database",
+                            detail: "The Prepaid dosen't exists in database with the specified prepaid_code."
                         }
                     });
                 }
@@ -311,8 +311,23 @@ const users = {
                         }
                     });
                 }
-                await prepaids_collection.updateOne({code: prepaidCode}, {$set: {uses: prepaid.usesLeft - 1}}); // Update the uses in the specific prepaid
-            } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+
+                // If prepaid has no more uses left it deletes
+                if (prepaid.users.includes(userId)) {
+                    return res.status(410).json({
+                        errors: {
+                            status: 401,
+                            source: "POST /users" + path,
+                            title: "The user has already registered with this code",
+                            detail: "The user_id alredy exists in the prepaid code users"
+                        }
+                    });
+                } else {
+                   prepaid.users.push(userId) 
+                }
+
+                await prepaids_collection.updateOne({code: prepaidCode}, {$set: {usesLeft: prepaid.usesLeft - 1, users: prepaid.users}}); // Update the uses in the specific prepaid
+            } catch(e) { return res.status(500).send(); } finally { await prepaidsClient.close(); }
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: user.balance + prepaid.amount}}); // Update the balance in the specific user
         } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
 
