@@ -9,7 +9,7 @@ router.post('/', // Register a admin (JWT)
 
 router.delete('/', // Delete a admin account (JWT)
     (req, res, next) => authModel.checkValidAdmin(req, res, next), // Only admins can do this
-    (req, res) => adminsModel.deleteAdmin(res, req.params.admin_id, req.path));
+    (req, res) => adminsModel.deleteAdmin(res, req.body.admin_id, req.path));
 
 router.put('/', // Edit a admin account (JWT)
     (req, res, next) => authModel.checkValidAdmin(req, res, next), // Only admins can do this
@@ -21,6 +21,6 @@ router.get('/', // Get all admins (JWT)
 
 router.get('/:admin_id', // Get specific admin (JWT)
     (req, res, next) => authModel.checkValidAdmin(req, res, next), // Only admins can do this
-    (req, res) => adminsModel.getSpecificAdmin(res, req.params.admin_id, req.path));
+    (req, res) => adminsModel.getSpecificAdmin(res, req.body.admin_id, req.path));
 
 module.exports = router;

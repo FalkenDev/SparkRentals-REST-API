@@ -68,7 +68,7 @@ const prepaids = {
 
     registerPrepaid: async function(res, body) {
         const totalUses = sanitize(body.total_uses)
-        const prepaidCode = sanitize(body.code);
+        let prepaidCode = sanitize(body.code);
         const prepaidAmount = parseFloat(sanitize(body.amount));
 
         // Check if something is missing
