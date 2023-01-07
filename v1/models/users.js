@@ -175,6 +175,42 @@ const users = {
         res.status(200).send({ user }); // Sends data from the specific user
     },
 
+    getSpecificGoogleUser: async function(res, google_id, path) {
+        let googleId = sanitize(google_id);
+        let user = null;
+
+        // Check if the scooterId are valid MongoDB id.
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                errors: {
+                    status: 400,
+                    detail: "The user_id is not a valid id."
+                }
+            });
+        }
+
+        let client = new MongoClient(mongoURI);
+        try {
+            let db = client.db("spark-rentals");
+            let users_collection = db.collection("users");
+            user = await users_collection.findOne({googleId: ObjectId(googleId)});
+        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+
+        // If nothing in users db collection
+        if (user === null || !Object.keys(user).length) {
+            return res.status(401).json({
+                errors: {
+                    status: 401,
+                    source: "GET /users" + path,
+                    title: "User not exists in database",
+                    detail: "The User dosen't exists in database with the specified user_id."
+                }
+            });
+        }
+
+        res.status(200).send({ user }); // Sends data from the specific user
+    },
+
     getUserHistory: async function(res, user_id, path) {
         let userId = sanitize(user_id);
         let userHistory = null;

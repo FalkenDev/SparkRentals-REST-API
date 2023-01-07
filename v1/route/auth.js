@@ -58,5 +58,10 @@ router.get("/google/user",
     (req, res) => res.json(req.user)
 );
 
+router.get("/google/user/token",
+    passport.authenticate('google-oauth-token'),
+    (req, res) => res.json(req.user)
+);
+
 
 module.exports = router;
