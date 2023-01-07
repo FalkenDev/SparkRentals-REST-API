@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authModel = require("../models/auth.js");
 const usersModel = require("../models/users.js");
+const passport = require('passport');
 
 router.get('/overview', // Get all users overview ( Only Admin access )
     (req, res, next) => authModel.checkValidAdmin(req, res, next),
@@ -24,6 +25,10 @@ router.put('/', // Edit a user
 
 router.get('/:user_id', // Get specific user
     (req, res, next) => authModel.validTokenKey(req, res, next),
+    (req, res) => usersModel.getSpecificUser(res, req.params.user_id, req.path));
+
+router.get('/google/:user_id', // Get specific user
+    passport.authenticate('google-oauth-token'),
     (req, res) => usersModel.getSpecificUser(res, req.params.user_id, req.path));
 
 router.get('/history', // Get all ride history from a user
