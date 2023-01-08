@@ -32,7 +32,7 @@ passport.use(new GoogleStrategy({
             await users_collection.insertOne(defaultUser);
             user = await users_collection.findOne({googleId: profile.id});
         } else if (user.googleId == null) {
-            await user_collection.updateOne({email: profile.emails[0].value}, {$set: {googleId: profile.id} });
+            await users_collection.updateOne({email: profile.emails[0].value}, {$set: {googleId: profile.id, accessToken: accessToken} });
             user = await users_collection.findOne({googleId: profile.id});
         } else {
             await users_collection.updateOne({googleId: profile.id}, {$set: {accessToken: accessToken}});
@@ -40,27 +40,22 @@ passport.use(new GoogleStrategy({
     } catch(err) { console.log(err); return cb(err, null); } finally { await client.close(); }
 
     if (user){
-        user["accessToken"] = accessToken
         return cb(null, user); 
     }
 }));
 
 passport.serializeUser((user, cb) => {
-    console.log("Serializing user", user);
-    console.log("-------------------------------USER ID:",user._id);
     cb(null, user._id);
 });
 
 passport.deserializeUser(async (id, cb) => {
-    console.log("-------------------------------USER2 ID:",id);
     let user = null;
     let client = new MongoClient(mongoURI);
     try {
         let db = client.db("spark-rentals");
         let users_collection = db.collection("users");
         user = await users_collection.findOne({_id: ObjectId(id)});
-    } catch(err) { console.log("ERROR De-Serializing user", err); return cb(err, null); } finally { await client.close(); }
-    console.log("De-Serializing user", user);
+    } catch(err) { return cb(err, null); } finally { await client.close(); }
 
     if (user) cb(null, user);
 });
@@ -71,6 +66,7 @@ passport.use(new GoogleOauthTokenStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 }, async(accessToken, refreshToken, profile, cb) => {
+    let user = null
     let client = new MongoClient(mongoURI);
     try {
         let db = client.db("spark-rentals");
@@ -80,9 +76,9 @@ passport.use(new GoogleOauthTokenStrategy({
             await users_collection.insertOne(defaultUser);
             user = await users_collection.findOne({googleId: profile.id});
         } else if (user.googleId == null) {
-            await user_collection.updateOne({email: profile.emails[0].value}, {$set: {googleId: profile.id} });
+            await users_collection.updateOne({email: profile.emails[0].value}, {$set: {googleId: profile.id, accessToken: accessToken} });
             user = await users_collection.findOne({googleId: profile.id});
         }
-    } catch(err) { console.log(err); return cb(err, null); } finally { await client.close(); }
+    } catch(err) { return cb(err, null); } finally { await client.close(); }
     return cb(null, user); 
 }));
