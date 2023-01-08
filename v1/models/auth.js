@@ -58,6 +58,9 @@ const auth = {
             } else if (req.body.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY || req.query.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY) {
                 console.log("----User----");
                 return auth.userCheckToken(req, res, next);
+            } else if (req.body.api_key == process.env.REACT_APP_USER_WEBB_API_KEY || req.query.api_key == process.env.REACT_APP_USER_WEBB_API_KEY) {
+                console.log("----User----");
+                return auth.userCheckToken(req, res, next);
             }
         } else if (req.user) {
             console.log("----Google User----");
