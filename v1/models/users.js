@@ -12,7 +12,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             users = await users_collection.find().toArray();
-        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (users === null || !users.length) {
@@ -48,7 +48,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             answer = await users_collection.deleteOne({_id: ObjectId(userId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
         
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
@@ -134,7 +134,7 @@ const users = {
 
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: updateFields}); // Update the fields in the specific user
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -158,7 +158,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             user = await users_collection.findOne({_id: ObjectId(userId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (user === null || !Object.keys(user).length) {
@@ -194,7 +194,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             user = await users_collection.findOne({googleId: ObjectId(googleId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (user === null || !Object.keys(user).length) {
@@ -230,7 +230,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             userHistory = await users_collection.findOne({_id: ObjectId(userId)}).project({history: 1});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (userHistory === null) {
@@ -266,7 +266,7 @@ const users = {
             let db = client.db("spark-rentals");
             let users_collection = db.collection("users");
             userDetails = await users_collection.findOne({_id: ObjectId(user_id), "history._id": ObjectId(history_id)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in users db collection
         if (userDetails === null) {
@@ -365,7 +365,7 @@ const users = {
                 await prepaids_collection.updateOne({code: prepaidCode}, {$set: {usesLeft: prepaid.usesLeft - 1, users: prepaid.users}}); // Update the uses in the specific prepaid
             } catch(e) { return res.status(500).send(); } finally { await prepaidsClient.close(); }
             await users_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: user.balance + prepaid.amount}}); // Update the balance in the specific user
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     }

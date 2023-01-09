@@ -26,7 +26,7 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooters = await scooters_collection.find().toArray();
-        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (scooters === null || !scooters.length) {
@@ -97,7 +97,7 @@ const scooters = {
             }
             await scooters_collection.insertOne(registerScooterDataField); // Register the scooter to the database
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     // Get all scooters overview
@@ -109,7 +109,7 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scootersOverview = await scooters_collection.find({}).project({"_id":1, "name":1, "owner":1, "status":1, "coordinates":1, "battery":1}).toArray();
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in db collection
         if (scootersOverview === null || !scootersOverview.length) {
@@ -136,7 +136,7 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             cityScooters = await scooters_collection.find({owner: ownerId}).toArray();
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (cityScooters === null || !cityScooters.length) {
@@ -174,7 +174,7 @@ const scooters = {
             let db = client.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scooter = await scooters_collection.findOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in scooters db collection
         if (scooter === null || !Object.keys(scooter).length) {
@@ -211,7 +211,7 @@ const scooters = {
                 let db = client.db("spark-rentals");
                 let scooters_collection = db.collection("scooters");
                 answer = await scooters_collection.deleteOne({_id: ObjectId(scooterId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
         
         if (answer.deletedCount <= 0) {
             return res.status(401).json({
@@ -286,7 +286,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: updateFields });
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -336,7 +336,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: scooterStatus} });
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -392,7 +392,7 @@ const scooters = {
 
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {coordinates: coordiantesField} });
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -449,7 +449,7 @@ const scooters = {
                     }
                 });
             }
-        } catch(e) { return res.status(500).send(e); } finally { await userClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await userClient.close(); }
 
         let client = new MongoClient(mongoURI);
         try {
@@ -496,7 +496,7 @@ const scooters = {
             // Push the trip object to trip object in scooter and status to "In use"
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "In use", trip: trip} });
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         res.status(204).send(); // Everything went good
     },
@@ -534,7 +534,7 @@ const scooters = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             city = await cities_collection.findOne({name: scooter.owner});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in collection with the specific cityId
         if (city === null || !Object.keys(city).length) {
@@ -689,7 +689,7 @@ const scooters = {
 
             // Stop the scooter and set the status to Available and trip endtime to the stop time
             await scooters_collection.updateOne({_id: ObjectId(scooterId)}, {$set: {status: "Available", "trip.endTime": endTime} });
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         let userClient = new MongoClient(mongoURI);
         try {
@@ -731,7 +731,7 @@ const scooters = {
             // Push the history data to user history
             await user_collection.updateOne({_id: ObjectId(userId)}, {$push: {history: historyDataField} });
             await user_collection.updateOne({_id: ObjectId(userId)}, {$set: {balance: newBalance} });
-        } catch(e) { return res.status(500).send(e); } finally { await userClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await userClient.close(); }
 
         return res.status(200).send(); // Everything went good
     }
