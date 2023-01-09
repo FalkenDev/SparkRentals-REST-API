@@ -90,10 +90,10 @@ const prepaids = {
         // Create prepaid data field
         let prepaidDataField = {
             code: prepaidCode,
-            totalUses: totalUses,
+            totalUses: parseInt(totalUses),
             users: [],
-            usesLeft: totalUses,
-            amount: prepaidAmount
+            usesLeft: parseInt(totalUses),
+            amount: parseFloat(prepaidAmount)
         }
 
         // Insert the registered data
@@ -170,7 +170,7 @@ const prepaids = {
         try {
             let db = client.db("spark-rentals");
             let prepaids_collection = db.collection("prepaid");
-            let prepaid = await prepaids_collection.findOne({_id: ObjectId(cityId)});
+            let prepaid = await prepaids_collection.findOne({_id: ObjectId(prepaidId)});
 
             // If the scooter dosen't exists
             if (prepaid === null) {
@@ -187,7 +187,13 @@ const prepaids = {
             // Put in the data the client has requested to update
             for (const field in prepaidDataField) {
                 if (body[field] !== undefined) {
-                    updateFields[field] = sanitize(body[field]);
+                    if (field == "usesLeft" || field == "totalUses"){
+                        updateFields[field] = parseInt(sanitize(body[field]));
+                    } else if (field == "amount") {
+                        updateFields[field] = parseFloat(sanitize(body[field]));
+                    } else {
+                        updateFields[field] = sanitize(body[field]);
+                    }
                 }
             }
 
