@@ -79,7 +79,7 @@ Some routes require a valid JSON Web Token (JWT) set in the HTTP header. The hea
 >node app.js
 
 ### Run it on Docker
-*** OPS! Don't forget to send your env file in docker run command***
+***OPS! Don't forget to send your env file in docker run command***
 > docker run -it falkendev/spark-rentals-api:latest
 
 ## Usage
