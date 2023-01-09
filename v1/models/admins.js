@@ -34,7 +34,7 @@ const admins = {
 
             res.status(200).send({ admins }); // Sends the whole collection with data
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     // Get specific admin information
@@ -71,7 +71,7 @@ const admins = {
 
             res.status(200).send({ admin }); // Sends data from the specific admin
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     // Delete specific admin
@@ -111,7 +111,7 @@ const admins = {
 
             return res.status(204).send();
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     // Edit specific admin
@@ -174,7 +174,7 @@ const admins = {
 
             return res.status(204).send(); // Everything went good
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     }
 }
 

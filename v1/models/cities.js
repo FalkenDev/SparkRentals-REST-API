@@ -11,7 +11,7 @@ const cities = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             cities = await cities_collection.find().toArray();
-        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in db collection
         if (cities === null || !cities.length) {
@@ -87,7 +87,7 @@ const cities = {
             await cities_collection.insertOne(cityDataField);
             res.status(204).send(); // Everything went good
 
-        } catch(e) { return res.status(500).send(e); } finally { await registerClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await registerClient.close(); }
     },
 
     getAllCitiesOverview: async function(res, path) {
@@ -101,7 +101,7 @@ const cities = {
             let db = citiesClient.db("spark-rentals");
             let cities_collection = db.collection("cities");
             citiesOverview = await cities_collection.find({}).project({"_id":1, "name":1, "zones":1}).toArray();
-        } catch(e) { return res.status(500).send(e); } finally { await citiesClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await citiesClient.close(); }
 
         // If nothing in db collection
         if (citiesOverview === null || !citiesOverview.length) {
@@ -121,7 +121,7 @@ const cities = {
             let db = scooterClient.db("spark-rentals");
             let scooters_collection = db.collection("scooters");
             scootersOverview = await scooters_collection.find({}).project({"_id":1, "owner":1, "status":1}).toArray();
-        } catch(e) { return res.status(500).send(e); } finally { await scooterClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await scooterClient.close(); }
 
         // If nothing in db collection
         if (scootersOverview === null || !scootersOverview.length) {
@@ -204,7 +204,7 @@ const cities = {
             let db = client.db("spark-rentals");
             let cities_collection = db.collection("cities");
             city = await cities_collection.findOne({_id: ObjectId(cityId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // If nothing in collection with the specific cityId
         if (city === null || !Object.keys(city).length) {
@@ -241,7 +241,7 @@ const cities = {
                 let db = client.db("spark-rentals");
                 let cities_collection = db.collection("cities");
                 answer = await cities_collection.deleteOne({_id: ObjectId(cityId)});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // Check if nothing has been deleted in MongoDB = the city_id dosen't exists
         if (answer.deletedCount <= 0) {
@@ -313,7 +313,7 @@ const cities = {
 
             await cities_collection.updateOne({_id: ObjectId(cityId)}, {$set: updateFields}); // Update the fields in the specific city
 
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -372,7 +372,7 @@ const cities = {
 
             await cities_collection.updateMany({_id: ObjectId(cityId)}, {$set: {taxRates: updateFields}}); // Update the admin information
 
-        } catch(e) { console.log(e); return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     },
@@ -433,7 +433,7 @@ const cities = {
                     }
                 });
             }
-        } catch(e) { res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { res.status(500).send(); } finally { await client.close(); }
 
         // Insert the data to a zone object
         let zoneDataField = {
@@ -451,7 +451,7 @@ const cities = {
             await cities_collection.updateOne({_id: ObjectId(cityId)}, {$push: {zones: zoneDataField} });
 
             res.status(204).send(); // Everything went good
-        } catch(e) { return res.status(500).send(e); } finally { await registerClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await registerClient.close(); }
     },
 
     deleteZone: async function(res, body, path) {
@@ -482,7 +482,7 @@ const cities = {
                 let db = client.db("spark-rentals");
                 let cities_collection = db.collection("cities");
                 answer = await cities_collection.updateOne({_id: ObjectId(cityId)}, {$pull: {zones: {_id: ObjectId(zoneId)}}});
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         // Check if nothing has been deleted in MongoDB = the zone_id dosen't exists
         if (answer.deletedCount <= 0) {
@@ -586,7 +586,7 @@ const cities = {
             // Update the zone
             await cities_collection.updateOne({_id: ObjectId(cityId), "zones._id": ObjectId(zoneId)}, {$set: {"zones.$":  updateFields}});
 
-        } catch(e) { console.log(e); return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
 
         return res.status(204).send(); // Everything went good
     }

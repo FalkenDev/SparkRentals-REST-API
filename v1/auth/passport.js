@@ -37,7 +37,7 @@ passport.use(new GoogleStrategy({
         } else {
             await users_collection.updateOne({googleId: profile.id}, {$set: {accessToken: accessToken}});
         }
-    } catch(err) { console.log(err); return cb(err, null); } finally { await client.close(); }
+    } catch(err) { return cb(err, null); } finally { await client.close(); }
 
     if (user){
         return cb(null, user); 

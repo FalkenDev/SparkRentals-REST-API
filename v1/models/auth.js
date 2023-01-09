@@ -53,17 +53,13 @@ const auth = {
     validTokenKey: async function(req, res, next) {  // Look if token is valid
         if (req.headers["x-access-token"] !== undefined) {
             if (req.body.api_key == process.env.REACT_APP_ADMIN_API_KEY || req.query.api_key == process.env.REACT_APP_ADMIN_API_KEY) {
-                console.log("----Admin----");
                 return auth.adminCheckToken(req, res, next);
             } else if (req.body.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY || req.query.api_key == process.env.REACT_APP_USER_MOBILE_API_KEY) {
-                console.log("----User----");
                 return auth.userCheckToken(req, res, next);
             } else if (req.body.api_key == process.env.REACT_APP_USER_WEBB_API_KEY || req.query.api_key == process.env.REACT_APP_USER_WEBB_API_KEY) {
-                console.log("----User----");
                 return auth.userCheckToken(req, res, next);
             }
         } else if (req.user) {
-            console.log("----Google User----");
             return auth.userAuthenticated(req, res, next);
         }
 
@@ -148,7 +144,7 @@ const auth = {
                         errors: {
                             status: 401,
                             source: "POST /auth" + path,
-                            title: "Wrong password",
+                                title: "Wrong password",
                             detail: "Password is incorrect."
                         }
                     });
@@ -165,7 +161,7 @@ const auth = {
                     }
                 });
             });
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     adminRegister: async function(res, body, path) { // Register a new Admin
@@ -245,7 +241,7 @@ const auth = {
                     }
                 });
             });
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     adminCheckToken: function(req, res, next) { // Check the x-access-token from admin
@@ -365,7 +361,7 @@ const auth = {
                     }
                 });
             });
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     userRegister: async function(res, body, path) { // Register a new Admin
@@ -456,7 +452,7 @@ const auth = {
                     let users_collection = db.collection("users");
                     await users_collection.insertOne(userCreate);
                     findUser = await users_collection.findOne({email: userEmail});
-                } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+                } catch(e) { return res.status(500); } finally { await client.close(); }
 
                 return res.status(201).json({
                     data: {
@@ -465,12 +461,11 @@ const auth = {
                     }
                 });
             });
-        } catch(e) { return res.status(500).send(e); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     userCheckToken: function(req, res, next) { // Check the x-access-token from user
         let token = req.headers['x-access-token'];
-        console.log(token);
 
         if (!token) {
             return res.status(401).json({ // If no token in request headers response with error code 401
