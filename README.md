@@ -33,38 +33,41 @@ Some routes require a valid JSON Web Token (JWT) set in the HTTP header. The hea
 ### Required environment variables
 ***OPS! Remove the // in the environment file when starting the program***
 
->// Rest API
->API_TOKEN=**[array with api tokens]**
->JWT_SECRET=**"Your secret jwt code"**
->REST_API_PORT=**"The port the the rest api should run on"**
->
->// For the access rights through Rest API
->REACT_APP_ADMIN_API_KEY=**"Admin Dashboard API Token"**
->REACT_APP_USER_MOBILE_API_KEY=**"Mobile Client API Token"**
->REACT_APP_USER_WEBB_API_KEY=**"User Webb Client API Token"**
->
->// When using local (MongoDB)
->DBURI=**"mongodb://localhost:27017"**
->
->// GOOGLE Oauth
->GOOGLE_CLIENT_ID=**"Google Client ID"**
->GOOGLE_CLIENT_SECRET=**"Google Secret Code"**
->
->// Google redericts localy
->GOOGLE_CALLBACK_URL=**"http://localhost:8393/v1/auth/google/callback"**
->GOOGLE_SUCCESS_URL=**"http://localhost:3000/login/google/success"**
->GOOGLE_FAILURE_URL=**"http://localhost:3000/login/google/failure"**
->
->COOKIE_KEY=**"Cookie Secret Code"**
->
->// JWT expire time for user token (x-access-token)
->JWT_USER_TOKEN_EXPIRE=**3600**
->
->// JWT expire time for user token (x-access-token)
->JWT_ADMIN_TOKEN_EXPIRE=**3600**
->
->// If the cluster should be on or not
->API_CLUSTER=**true**
+    # Rest API
+    API_TOKEN=[array with api tokens]
+    JWT_SECRET="Your secret jwt code"
+    REST_API_PORT="The port the the rest api should run on"
+    
+    # For the access rights through Rest API
+    REACT_APP_ADMIN_API_KEY="Admin Dashboard API Token"
+    REACT_APP_USER_MOBILE_API_KEY="Mobile Client API Token"
+    REACT_APP_USER_WEBB_API_KEY="User Webb Client API Token"
+
+    # When using local (MongoDB)
+    DBURI="mongodb://localhost:27017"
+
+    # GOOGLE Oauth
+    GOOGLE_CLIENT_ID="Google Client ID"
+    GOOGLE_CLIENT_SECRET="Google Secret Code"
+
+    # Google routes localy
+    GOOGLE_CALLBACK_URL=**"http://localhost:8393/v1/auth/google/callback"**
+    GOOGLE_SUCCESS_URL=**"http://localhost:3000/login/google/success"**
+    GOOGLE_FAILURE_URL=**"http://localhost:3000/login/google/failure"**
+
+    # Cookie
+    COOKIE_KEY="Cookie Secret Code"
+
+    # JWT expire time for user token (x-access-token)
+    # Set to 1h
+    JWT_USER_TOKEN_EXPIRE=3600
+
+    # JWT expire time for user token (x-access-token)
+    # Set to 1h
+    JWT_ADMIN_TOKEN_EXPIRE=3600
+
+    # If the cluster should be on or not
+    API_CLUSTER=**true**
 
 ### Run it localy
 - Fork the project / donwload the project.
