@@ -31,7 +31,7 @@ Some routes require a valid JSON Web Token (JWT) set in the HTTP header. The hea
 
 ## Download
 ### Required environment variables
-***OPS! Remove the // in the environment file when starting the program***
+***.env:***
 
     # Rest API
     API_TOKEN=[array with api tokens]
