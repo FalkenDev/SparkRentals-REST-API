@@ -39,7 +39,7 @@ const cities = {
         const cityChargingZoneRate = sanitize(body.chargingZoneRate);
 
         // Check if something is missing
-        if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate || cityNoParkingToValidParking) {
+        if (!cityName || !cityFixedRate || !cityTimeRate || !cityBonusParkingZoneRate || !cityParkingZoneRate || !cityNoParkingZoneRate || !cityNoParkingToValidParking) {
             return res.status(401).json({
                 errors: {
                     status: 401,
