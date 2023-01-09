@@ -51,6 +51,7 @@ const cities = {
         }
 
         // Get cities data
+        let cities = null;
         let client = new MongoClient(mongoURI);
         try {
             let db = client.db("spark-rentals");
@@ -58,7 +59,7 @@ const cities = {
             cities = await cities_collection.find().toArray();
 
             // Check if city alredy exists in database
-            if (cities.name.includes(cityName)) {
+            if (cities.some(e => e.name === cityName)) {
                 return res.status(401).json({
                     errors: {
                         status: 401,
@@ -87,7 +88,7 @@ const cities = {
             await cities_collection.insertOne(cityDataField);
             res.status(204).send(); // Everything went good
 
-        } catch(e) { return res.status(500).send(); } finally { await registerClient.close(); }
+        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
     },
 
     getAllCitiesOverview: async function(res, path) {
