@@ -490,7 +490,8 @@ const scooters = {
                     latitude: scooter.coordinates.latitude
                 },
                 startTime: timeToday.getHours() + ":" + timeToday.getMinutes() + ":" + timeToday.getSeconds(),
-                endTime: null
+                endTime: null,
+                distance: 0
             }
 
             // Push the trip object to trip object in scooter and status to "In use"
