@@ -723,7 +723,8 @@ const scooters = {
                 startPosition: scooter.trip.startPosition,
                 endPosition: scooter.coordinates,
                 totalMin: totalMin,
-                totalPrice: totalPrice
+                totalPrice: totalPrice,
+                distance: scooter.trip.distance
             }
 
             let newBalance = user.balance - parseFloat(totalPrice);

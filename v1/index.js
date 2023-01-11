@@ -12,8 +12,7 @@ const routePrepaids = require("./route/prepaid.js");
 router.all('*', authModel.checkAPIKey);
 
 router.get('/',
-    (req, res, next) => authModel.userAuthenticated(req, res, next),
-    (req, res) => res.sendFile(path.join(__dirname + '/documentation.html')));
+    (req, res) => res.sendFile(path.join(__dirname + '/documentation/documentation.html')));
 
 router.use("/auth", routeAuth);
 router.use("/admins", routeAdmins);
