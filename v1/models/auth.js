@@ -16,19 +16,19 @@ const auth = {
             return next();
         }
 
-        if ( req.path == '/auth/login/google') { // Documentation
+        if ( req.path == '/auth/login/google') { // Google
             return next();
         }
 
-        if ( req.path == '/auth/google/callback') { // Documentation
+        if ( req.path == '/auth/google/callback') { // Google
             return next();
         }
 
-        if ( req.path == '/auth/logout/google') { // Documentation
+        if ( req.path == '/auth/logout/google') { // Google
             return next();
         }
 
-        if ( req.path == '/auth/login/google/error') { // Documentation
+        if ( req.path == '/auth/login/google/error') { // Google
             return next();
         }
 
@@ -200,6 +200,7 @@ const auth = {
 
             // If email found in database
             if (admin !== null) {
+                client.close();
                 return res.status(401).json({
                     errors: {
                         status: 403,
@@ -213,6 +214,7 @@ const auth = {
             // bcrypt the password
             bcrypt.hash(adminPassword, 10, async function(err, hash) {
                 if (err) {
+                    client.close();
                     return res.status(500).json({ // if error with bcrypt
                         errors: {
                             status: 500,
@@ -233,6 +235,7 @@ const auth = {
 
                 // Insert the admin object to the database
                 await admins_collection.insertOne(adminCreate);
+                client.close();
 
                 // Return sucess
                 return res.status(201).json({
@@ -241,7 +244,7 @@ const auth = {
                     }
                 });
             });
-        } catch(e) { return res.status(500).send(); } finally { await client.close(); }
+        } catch(e) { return res.status(500).send(); }
     },
 
     adminCheckToken: function(req, res, next) { // Check the x-access-token from admin
