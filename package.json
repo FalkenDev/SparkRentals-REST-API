@@ -1,0 +1,49 @@
+{
+  "name": "sparkrentals-rest-api",
+  "version": "1.0.0",
+  "description": "***Unfortunately, the program is not ready and will not be ready for launch until December 13.*** ## Content - [About](#about) - [Download](#download) - [Usage](#usage) - [Version](#version) - [Contact](#contact) ## About ### Background The REST API will be the very foundation of the entire SparkRentals system for everything to work where the clients such as \"User Web Client\", \"User Mobile app\" and \"Admin Dashboard\" will be able to get the information they need but also be able to update and delete things in the database.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FalkenDev/SparkRentals-REST-API.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FalkenDev/SparkRentals-REST-API/issues"
+  },
+  "homepage": "https://github.com/FalkenDev/SparkRentals-REST-API#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.1",
+    "cluster": "^0.7.7",
+    "content-filter": "^1.1.2",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.28.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "express-session": "^1.17.3",
+    "hat": "^0.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongo-sanitize": "^1.1.0",
+    "mongodb": "^4.12.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.6.0",
+    "passport-google-oauth-token": "^1.0.4",
+    "passport-google-oauth20": "^2.0.0",
+    "path": "^0.12.7",
+    "robust-point-in-polygon": "^1.0.3"
+  },
+  "devDependencies": {
+    "jsdoc": "^4.0.0",
+    "nodemon": "^2.0.20"
+  }
+}
